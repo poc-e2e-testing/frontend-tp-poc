@@ -33,3 +33,6 @@ lerna-debug.log*
 
 # Archivos locales
 *.local
+
+.package-lock.json
+package-lock.json
