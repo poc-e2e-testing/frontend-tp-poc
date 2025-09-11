@@ -12,7 +12,13 @@
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
     "test:e2e:headed": "cypress open",
-    "test:e2e:headless": "cypress run --headed"
+    "test:e2e:headless": "cypress run --headed",
+    "test-pw": "pnpm exec playwright test",
+    "test-pw:headed": "pnpm exec playwright test --headed",
+    "test-pw:firefox": "pnpm exec playwright test --project=firefox",
+    "test-pw:ui": "pnpm exec playwright test --ui",
+    "test-pw:debug": "pnpm exec playwright test --debug",
+    "test-pw:report": "pnpm exec playwright show-report"
   },
   "dependencies": {
     "@react-google-maps/api": "^2.20.3",
