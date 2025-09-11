@@ -16,11 +16,9 @@ pnpm create playwright
 
 2. El anterior comando Descarga el generador oficial de Playwright y realiza un wizard interactivo preguntando
 3. TypeScript o JavaScript (por defecto TypeScript)
-4. El directorio donde se guardarán los tests (por defecto /tests).  
+4. El directorio donde se guardarán los tests (por defecto /tests, pero nosotros usamos ./playwright/tests/).  
 5. Opción de crear un workflow de GitHub Actions (puede ignorarse por ahora).
-6. Descarga binarios de navegadores (Chromium, Firefox, WebKit) (por defecto yes). 
-
-### 3. Configuración  
+6. Descarga binarios de navegadores (Chromium, Firefox, WebKit) (por defecto yes).### 3. Configuración  
 Para nuestro proyecto en particular configuramos playwright.config.ts con Typescript. 
 ```ts
 import { defineConfig, devices } from '@playwright/test';
@@ -95,12 +93,10 @@ Playwright te crea la carpeta y coloca unos test de ejemplo para realizar una pr
 pnpm exec playwright test
 ```
 
-Ejecutar un test en particular:  
+Ejecutar un test en particular:  
 ```bash
-pnpm exec playwright test tests/example.spec.ts
-```
-
-Ejecutar en un navegador específico:  
+pnpm exec playwright test playwright/tests/common/example.spec.ts
+```Ejecutar en un navegador específico:  
 ```bash
 pnpm exec playwright test --project=firefox
 ```
@@ -127,7 +123,7 @@ pnpm run test-pw:headed
 
 ### 7. Ejemplos
 
-Ejemplo de test hola mundo en tests/hello.spec.ts:
+Ejemplo de test básico en playwright/tests/common/example.spec.ts:
 ```ts
 import { test, expect } from '@playwright/test';
 
@@ -139,7 +135,7 @@ test('Wikipedia homepage test', async ({ page }) => {
 });
 ```
 
-Ejemplo de ejecución:  
+Ejemplo de ejecución:  
 ```bash
 pnpm exec playwright test tests/hello.spec.ts
 ```
@@ -147,7 +143,9 @@ pnpm exec playwright test tests/hello.spec.ts
 ### 8. Comandos útiles
 
 - pnpm exec playwright test → correr todos los tests
-- pnpm exec playwright test tests/name_test.spec.ts → correr un test
+- pnpm exec playwright test playwright/tests/common/example.spec.ts → correr un test específico
+- pnpm exec playwright test playwright/tests/common/ → correr todos los tests comunes
+- pnpm exec playwright test playwright/tests/specs/ → correr tests por funcionalidad (cuando se agreguen)
 - pnpm exec playwright test --project=firefox → solo en Firefox
 - pnpm exec playwright test --headed → abrir navegador visible
 - pnpm exec playwright test --ui → interfaz interactiva de tests
