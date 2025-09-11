@@ -61,6 +61,7 @@ Thumbs.db
 # Lock files (mantener solo uno según tu gestor de paquetes)
 .package-lock.json
 package-lock.json
+pnpm-lock.yaml
 
 # Playwright
 /test-results/

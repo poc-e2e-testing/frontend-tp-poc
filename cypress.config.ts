@@ -25,8 +25,10 @@ export default defineConfig({
     },
 
     // Configuraciones de grabación
-    video: true,
-    screenshotOnRunFailure: true,
+    video: true,                        // ✅ Grabar videos de todos los tests
+    videosFolder: 'cypress/videos',     // Carpeta donde guardar videos
+    videoCompression: 15,               // Compresión (0-51, menor = mejor calidad)
+    screenshotOnRunFailure: true,       // Screenshots si falla
     viewportWidth: 1280,
     viewportHeight: 720,
     

@@ -1,0 +1,22 @@
+{
+  "validos": {
+    "admin": {
+      "email": "admin@donjulio.com", 
+      "password": "Admin1234!"
+    },
+    "client": {
+      "email": "cliente@donjulio.com", 
+      "password": "Cliente1234!"
+    }
+  },
+  "invalidos": {
+    "emailIncorrecto": {
+      "email": "noexiste@test.com", 
+      "password": "Admin1234!"
+    },
+    "passwordIncorrecto": {
+      "email": "cliente@donjulio.com", 
+      "password": "wrongpass"
+    }
+  }
+}
