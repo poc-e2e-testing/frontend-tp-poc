@@ -49,15 +49,19 @@ cp cypress.env.example.json cypress.env.json
 ```
 /cypress
   /e2e/                    # Tests E2E
-    hola_mundo.cy.ts       # Test básico de smoke
-    shopping-cart-test.cy.ts # Tests del carrito
+    /specs/                # Tests organizados por funcionalidad (vacía por ahora)
+    /common/               # Tests comunes y de smoke
+      hola_mundo.cy.ts     # Test básico de smoke
   /fixtures/               # Datos de prueba
-    usuarios-ejemplo.json  # Usuarios de prueba
-  /support/               # Configuración y comandos
-    commands.ts           # Comandos personalizados
-    e2e.ts               # Configuración global
-    index.d.ts           # Tipos TypeScript
-cypress.config.ts         # Configuración principal
+    userAdmin.json         # Usuario administrador para tests
+  /support/                # Configuración y comandos
+    commands.ts            # Comandos personalizados
+    e2e.ts                 # Configuración global
+    index.d.ts             # Tipos TypeScript
+  /downloads/              # Archivos descargados durante tests (generado automáticamente)
+  /screenshots/            # Screenshots de tests fallidos (generado automáticamente)
+  /videos/                 # Videos de ejecución de tests (generado automáticamente)
+cypress.config.ts          # Configuración principal
 ```
 
 ## 🏃‍♂️ Ejecutar tests localmente
@@ -84,7 +88,7 @@ npm run cypress:open
 pnpm run cypress:run
 
 # Test específico
-pnpm cypress run --spec "cypress/e2e/hola_mundo.cy.ts"
+pnpm cypress run --spec "cypress/e2e/common/hola_mundo.cy.ts"
 
 # Solo en Chrome
 pnpm cypress run --browser chrome
@@ -92,9 +96,30 @@ pnpm cypress run --browser chrome
 
 ## 🧪 Tests disponibles
 
-| Test | Descripción | Archivo |
-|------|-------------|---------|
-| **Hola Mundo** | Test básico de smoke | `hola_mundo.cy.ts` |
+| Test | Descripción | Archivo | Ubicación |
+|------|-------------|---------|-----------|
+| **Hola Mundo** | Test básico de smoke | `hola_mundo.cy.ts` | `cypress/e2e/common/` |
+
+> **Nota:** La carpeta `cypress/e2e/specs/` está lista para organizar futuros tests por funcionalidad (auth, store, checkout, admin, etc.)
+
+## 📂 Organización de Tests
+
+### Estructura recomendada para futuros tests:
+```
+cypress/e2e/
+├── specs/                    # Tests organizados por funcionalidad
+│   ├── auth/                # Tests de autenticación (login, register)
+│   ├── store/               # Tests de tienda (productos, carrito)
+│   ├── checkout/            # Tests de compra (checkout, órdenes)
+│   └── admin/               # Tests de administración
+└── common/                  # Tests comunes, smoke tests, navegación
+    └── hola_mundo.cy.ts     # Test básico existente
+```
+
+### Convenciones de nombres:
+- **Tests de funcionalidad específica:** `cypress/e2e/specs/[área]/[función].cy.ts`
+- **Tests comunes/smoke:** `cypress/e2e/common/[nombre].cy.ts`
+- **Datos de prueba:** `cypress/fixtures/[área]-data.json`
 
 
 ## 🔧 Comandos personalizados disponibles
@@ -132,16 +157,20 @@ describe('Compra completa', () => {
 
 ### Archivos generados:
 - **Videos:** `cypress/videos/` (solo en modo headless)
-- **Screenshots:** `cypress/screenshots/` (cuando fallan tests)
+- **Screenshots:** `cypress/screenshots/` (cuando fallan tests)  
+- **Downloads:** `cypress/downloads/` (archivos descargados durante tests)
 - **Reportes:** `cypress/reports/` (si está configurado)
 
 ### Comandos útiles:
 ```bash
-# Ejecutar con video habilitado
-pnpm cypress run --record
+# Ejecutar test específico
+pnpm cypress run --spec "cypress/e2e/common/hola_mundo.cy.ts"
 
-# Solo tests que fallan
-pnpm cypress run --spec "cypress/e2e/**/*" --reporter json
+# Ejecutar todos los tests comunes
+pnpm cypress run --spec "cypress/e2e/common/**/*"
+
+# Ejecutar todos los tests por specs (cuando se agreguen)
+pnpm cypress run --spec "cypress/e2e/specs/**/*"
 
 # Con browser específico
 pnpm cypress run --browser firefox
