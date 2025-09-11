@@ -18,13 +18,15 @@ pnpm create playwright
 3. TypeScript o JavaScript (por defecto TypeScript)
 4. El directorio donde se guardarán los tests (por defecto /tests, pero nosotros usamos ./playwright/tests/).  
 5. Opción de crear un workflow de GitHub Actions (puede ignorarse por ahora).
-6. Descarga binarios de navegadores (Chromium, Firefox, WebKit) (por defecto yes).### 3. Configuración  
+6. Descarga binarios de navegadores (Chromium, Firefox, WebKit) (por defecto yes).
+
+### 3. Configuración  
 Para nuestro proyecto en particular configuramos playwright.config.ts con Typescript. 
 ```ts
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
-  testDir: './tests',          // Carpeta de tests
+  testDir: './playwright/tests',    // Carpeta de tests
   fullyParallel: true,         // Ejecutar tests en paralelo
   forbidOnly: !!process.env.CI,// Falla si quedó test.only en CI
   retries: process.env.CI ? 2 : 0, // Reintentos solo en CI
@@ -71,7 +73,7 @@ export default defineConfig({
 - **screenshot**: Toma capturas de pantalla durante la ejecución de tests. Opciones: on (siempre), off (nunca), only-on-failure (solo si falla)
 - **video**: Graba video mientras corren los test. on (siempre), off (nunca), retain-on-failure (solo cuando falla)
 - **projects**: navegadores en los que se ejecutan los tests.
-- **wevServer**: usa el script de arranque para levantar el frontend antes de hacer las pruebas.
+- **webServer**: usa el script de arranque para levantar el frontend antes de hacer las pruebas.
 
   
 
@@ -80,11 +82,11 @@ Después de la instalación queda así:
 ```
 ├── ./frontend  
 ├── ./package.json  
-├── ./playwright.config.ts  
-├── ./tests/  
-│   └── example.spec.ts
-└── ./tests-examples/  
-    └── demo-todo-app.spec.ts  
+├── ./playwright.config.ts
+└── ./playwright/tests/
+     └── common/
+         ├── example.spec.ts
+         └── hello.spec.ts
 ``` 
 
 ### 5. Ejecutar tests
@@ -96,6 +98,7 @@ pnpm exec playwright test
 Ejecutar un test en particular:  
 ```bash
 pnpm exec playwright test playwright/tests/common/example.spec.ts
+
 ```Ejecutar en un navegador específico:  
 ```bash
 pnpm exec playwright test --project=firefox
@@ -135,9 +138,11 @@ test('Wikipedia homepage test', async ({ page }) => {
 });
 ```
 
-Ejemplo de ejecución:  
+Ejemplos de ejecución:  
 ```bash
-pnpm exec playwright test tests/hello.spec.ts
+pnpm exec playwright test playwright/tests/common/example.spec.ts   // ejemplo 1
+pnpm exec playwright test playwright/tests/common/hello.spec.ts  // ejemplo 2
+
 ```
 
 ### 8. Comandos útiles
