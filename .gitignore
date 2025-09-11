@@ -62,7 +62,5 @@ Thumbs.db
 .package-lock.json
 package-lock.json
 
-# Cache y archivos temporales
-.cache/
-.temp/
-.tmp/
+pnpm-lock.yaml
+
