@@ -3,18 +3,20 @@
 ## Resultados de Ejecución Multi-Browser
 
 ### Cypress (Tests funcionales principales)
-| Navegador | Total | Aprobados | Fallidos | Tasa Éxito |
-|-----------|-------|-----------|----------|------------|
-| Chrome 140 | 6 | 5 | 1 | 83.3% |
-| Firefox 142 | 6 | 5 | 1 | 83.3% |
-| Edge 140 | 6 | 5 | 1 | 83.3% |
+
+| Navegador   | Total | Aprobados | Fallidos | Tasa Éxito |
+| ----------- | ----- | --------- | -------- | ---------- |
+| Chrome 140  | 6     | 5         | 1        | 83.3%      |
+| Firefox 142 | 6     | 5         | 1        | 83.3%      |
+| Edge 140    | 6     | 5         | 1        | 83.3%      |
 
 ### Playwright (Tests completos)
+
 | Navegador | Total | Aprobados | Fallidos | Tasa Éxito |
-|-----------|-------|-----------|----------|------------|
-| Chromium | 6 | 6 | 0 | 100% |
-| Firefox | 6 | 5 | 1 | 83.3% |
-| WebKit | 6 | 3 | 3 | 50% |
+| --------- | ----- | --------- | -------- | ---------- |
+| Chromium  | 6     | 6         | 0        | 100%       |
+| Firefox   | 6     | 5         | 1        | 83.3%      |
+| WebKit    | 6     | 3         | 3        | 50%        |
 
 ## Fallas Identificadas
 
@@ -24,13 +26,15 @@
 **Navegadores afectados:** Chrome, Firefox, Edge (100% consistencia)
 
 **Error:**
+
 ```
 AssertionError: expected 'admin@donjulio.com' to be null
 ```
 
 **Causa:** El logout manual desde la UI no limpia `clientEmail` del localStorage.
 
-**Por qué es crítico:** 
+**Por qué es crítico:**
+
 - Comportamiento consistentemente fallido en todos los navegadores
 - Información sensible persiste después del logout
 - Vulnerabilidad de seguridad cross-browser
@@ -38,15 +42,18 @@ AssertionError: expected 'admin@donjulio.com' to be null
 ### 2. Playwright: Problemas de Conectividad y Timeouts
 
 **Firefox:**
+
 - 1 test fallido por `NS_ERROR_CONNECTION_REFUSED`
 - Problemas de conectividad con el servidor local
 
 **WebKit:**
+
 - 3 tests fallidos por timeout en setup de página
 - `Test timeout of 30000ms exceeded while setting up "page"`
 - Problemas específicos con WebKit engine
 
 **Por qué cambiar:**
+
 - WebKit requiere configuración específica de timeouts
 - Firefox en Playwright necesita configuración de red diferente
 - Los timeouts actuales son insuficientes para algunos engines
@@ -57,6 +64,7 @@ AssertionError: expected 'admin@donjulio.com' to be null
 **Playwright:** Fallas de infraestructura específicas por navegador
 
 **Prioridad de corrección:**
+
 1. **Alta:** Fix logout localStorage en aplicación
-2. **Media:** Configurar timeouts específicos para WebKit  
+2. **Media:** Configurar timeouts específicos para WebKit
 3. **Baja:** Ajustar configuración de red para Firefox
