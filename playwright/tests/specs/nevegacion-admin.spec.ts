@@ -1,14 +1,5 @@
 import { test, expect } from '@playwright/test'
-
-// Definir datos inline (más simple)
-const usuarios = {
- validos: {
-    admin: {
-      email: "admin@donjulio.com",
-      password: "Admin1234!"
-    }
-  }
-}
+import usuarios from '../../fixtures/usuarios.json' with { type: 'json' }
 
 test.describe('Navegación Post-Login - Playwright', () => {
   

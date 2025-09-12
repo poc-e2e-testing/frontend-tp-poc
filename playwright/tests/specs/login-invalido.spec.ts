@@ -1,18 +1,5 @@
 import { test, expect } from '@playwright/test'
-
-// Datos de usuarios inline (evita problemas con JSON imports)
-const usuarios = {
-  invalidos: {
-    emailIncorrecto: {
-      email: "noexiste@test.com",
-      password: "123456"
-    },
-    passwordIncorrecto: {
-      email: "user@test.com",
-      password: "wrongpass"
-    }
-  }
-}
+import usuarios from '../../fixtures/usuarios.json' with { type: 'json' }
 
 test.describe('Login Inválido - Playwright', () => {
   test('Login falla con email incorrecto', async ({ page }) => {
