@@ -39,6 +39,16 @@ AssertionError: expected 'admin@donjulio.com' to be null
 - Información sensible persiste después del logout
 - Vulnerabilidad de seguridad cross-browser
 
+---
+
+**Error:**
+
+```
+AssertionError: Timed out retrying after 10000ms: expected '<button.btn.btn-outline-secondary.btn-sm>' to be 'visible'
+```
+
+**Causa:** El alert espera a que el usuario este viendo la pestaña durante un tiempo antes de desaparecer, haciendo que el tiempo de espera de cypress se agote provocando el error.
+
 ### 2. Playwright: Problemas de Conectividad y Timeouts
 
 **Firefox:**

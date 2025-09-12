@@ -115,4 +115,24 @@ describe('Logout - Cypress', () => {
       }
     });
   });
+  
+  it('Debería desloguear al usuario si el localStorage se limpia externamente', () => {
+    // 1. Hacemos login y visitamos una página.
+    cy.loginByApi(
+      usuarios.validos.client.email, 
+      usuarios.validos.client.password
+    );
+    cy.visit('/store');
+
+    // 2. Verificamos que estamos logueados.
+    cy.contains('button', /Cerrar sesión/i).should('be.visible');
+
+    // 3. Acción: Simular que otra pestaña limpió el localStorage.
+    cy.clearLocalStorage();
+
+    // 4. Verificación: Al recargar la página, la aplicación debe reaccionar y mostrar el estado de "no logueado".
+    cy.reload();
+    cy.contains('a', /Iniciar sesión/i).should('be.visible');
+    cy.contains('button', /Cerrar sesión/i).should('not.exist');
+  });
 });
