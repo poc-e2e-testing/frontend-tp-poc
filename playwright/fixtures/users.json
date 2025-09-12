@@ -1,0 +1,10 @@
+{
+  "admin": {
+    "email": "admin@donjulio.com",
+    "password": "Admin1234!"
+  },
+  "cliente": {
+    "email": "cliente@donjulio.com",
+    "password": "Cliente1234!"
+  }
+}
