@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import usuarios from '../../fixtures/usuarios.json' with { type: 'json' }
+import usuarios from '../../../fixtures/usuarios.json' with { type: 'json' }
 
 test.describe('Navegación Post-Login - Playwright', () => {
   
