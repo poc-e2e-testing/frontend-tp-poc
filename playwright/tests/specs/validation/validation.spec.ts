@@ -1,6 +1,4 @@
 import { test, expect } from '@playwright/test';
-
-// Importamos los datos de los usuarios. La sintaxis `with { type: 'json' }` es la forma moderna de hacerlo.
 import usuarios from '../../../fixtures/usuarios.json' with { type: 'json' };
 
 test.describe('Pruebas de Filtros en la Tienda - Playwright', () => {
@@ -24,7 +22,7 @@ test.describe('Pruebas de Filtros en la Tienda - Playwright', () => {
     await page.getByPlaceholder('Buscar productos').fill(terminoBusqueda);  
     await page.getByRole('button', { name: 'Buscar' }).click();
 
-    // 2. Aserción de Sincronización (¡LA CLAVE!):
+    // 2. Aserción de Sincronización:
     // Esperamos a que el resultado del filtro esté completo. Sabemos que solo debe quedar 1 tarjeta.
     await expect(page.locator('.card')).toHaveCount(1);
 
