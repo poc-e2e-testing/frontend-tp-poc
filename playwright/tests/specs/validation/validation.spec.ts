@@ -14,6 +14,25 @@ test.describe('Pruebas de Filtros en la Tienda - Playwright', () => {
     await expect(page.locator('.card').first()).toBeVisible({ timeout: 10000 });
   });
 
+  test('Debería filtrar los productos correctamente al usar el buscador de texto', async ({ page }) => {
+    // Datos de prueba
+    const productoPremium = 'Don Julio Premium Granos 500g';
+    const productoHacienda = 'Hacienda Del Valle Molido 250g';
+    const terminoBusqueda = 'Premium';
+
+    // 1. Acción: En Playwright, `fill` es ideal porque primero borra el campo y luego escribe.
+    await page.getByPlaceholder('Buscar productos').fill(terminoBusqueda);  
+    await page.getByRole('button', { name: 'Buscar' }).click();
+
+    // 2. Aserción de Sincronización (¡LA CLAVE!):
+    // Esperamos a que el resultado del filtro esté completo. Sabemos que solo debe quedar 1 tarjeta.
+    await expect(page.locator('.card')).toHaveCount(1);
+
+    // 3. Aserción Final: Ahora que sabemos que el filtro se aplicó, verificamos el contenido.
+    await expect(page.locator('.card', { hasText: productoPremium })).toBeVisible();
+    await expect(page.locator('.card', { hasText: productoHacienda })).toBeHidden();
+  });
+
   test('Debería ordenar los productos por precio de menor a mayor', async ({ page }) => {
     // 1. Acción: Seleccionamos la opción 'asc' en el dropdown.
     await page.locator('select#order').selectOption('asc');
@@ -81,7 +100,12 @@ const productoPremium = 'Don Julio Premium Granos 500g';
     targetPosition: { x: 150, y: 0 } 
   }); */
 
-  // 2. Verificaciones: Comprobar que el producto más barato no exista y el más caro sea visible.
+  // 2. Aserción de Sincronización: Esperamos a que el texto del rango se actualice.
+  // Usamos `expect.poll` para re-evaluar la condición hasta que se cumpla o se agote el tiempo.
+  // Esto es muy útil para esperar cambios en la UI que dependen de eventos.
+  await expect(page.locator('.card')).toHaveCount(1, { timeout: 10000 });
+
+  // 3. Verificaciones: Comprobar que el producto más barato no exista y el más caro sea visible.
   await expect(page.locator('.card', { hasText: productoHacienda })).toBeHidden();
   await expect(page.locator('.card', { hasText: productoPremium })).toBeVisible();
   })
