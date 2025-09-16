@@ -35,7 +35,7 @@ FRONTEND-TP-POC/
 │
 │   # --- Datos de Prueba ---
 │   ├── fixtures/             # Almacena datos estáticos (mocks) para tus pruebas en formato JSON.
-│   │   ├── users.json        # Ejemplo: lista de usuarios para pruebas de login con diferentes roles.
+│   │   ├── usuarios.json     # Ejemplo: lista de usuarios para pruebas de login con diferentes roles.
 │   │   └── products.json   # Ejemplo: lista de productos para simular una respuesta de API.
 │
 │   # --- Código de Soporte y Comandos Personalizados ---
