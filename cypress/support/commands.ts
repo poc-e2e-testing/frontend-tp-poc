@@ -23,53 +23,60 @@ Cypress.Commands.add('loginUi', (email: string, password: string) => {
   });
 });
 
-// LOGIN directo contra API (más rápido para setup de tests)
-Cypress.Commands.add('loginByApi', (email: string, password: string) => {
-  const apiUrl = Cypress.env('API_URL');
+// Login mediante API (sin UI, más rápido)
+Cypress.Commands.add('loginByApi', (email, password) => {
+  const apiUrl = Cypress.env('API_URL')
 
-  cy.request('POST', `${apiUrl}/api/auth/login`, {
-    email: email,
-    password: password,
-  }).then((loginResp) => {
-    expect(loginResp.status).to.eq(200);
-    const token = loginResp.body.token;
+  cy.session(
+    [email, password], // ID único para la sesión
+    () => {
+      cy.request('POST', `${apiUrl}/api/auth/login`, { email, password }).then(
+        (loginResp) => {
+          expect(loginResp.status).to.eq(200)
+          const token = loginResp.body.token
 
-    // Obtener datos del usuario
-    cy.request({
-      method: 'GET',
-      url: `${apiUrl}/api/auth/me`,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }).then((meResp) => {
-      expect(meResp.status).to.eq(200);
+          return cy
+            .request({
+              method: 'GET',
+              url: `${apiUrl}/api/auth/me`,
+              headers: { Authorization: `Bearer ${token}` },
+            })
+            .then((meResp) => {
+              expect(meResp.status).to.eq(200)
+              window.localStorage.setItem('token', token)
+              window.localStorage.setItem(
+                'user',
+                JSON.stringify(meResp.body.user)
+              )
+              window.localStorage.setItem(
+                'clientEmail',
+                meResp.body.user.email
+              )
+            })
+        }
+      )
+    },
+    {
+      cacheAcrossSpecs: true
+    }
+  )
+})
 
-      // Simular el localStorage como tu app
-      cy.window().then((win) => {
-        win.localStorage.setItem('token', token);
-        win.localStorage.setItem('user', JSON.stringify(meResp.body.user));
-        win.localStorage.setItem('clientEmail', meResp.body.user.email);
-      });
-    });
-  });
-});
-
-// 🚪 LOGOUT (limpia todo)
+// Logout comando
 Cypress.Commands.add('logout', () => {
   cy.window().then((win) => {
-    // Limpiar localStorage
-    win.localStorage.removeItem('token');
-    win.localStorage.removeItem('user');
-    win.localStorage.removeItem('clientEmail');
-    win.localStorage.removeItem('lastOrderId');
+    win.localStorage.removeItem('token')
+    win.localStorage.removeItem('user')
+    win.localStorage.removeItem('clientEmail')
+    win.localStorage.removeItem('lastOrderId')
 
-    // Disparar evento storage
-    win.dispatchEvent(new Event('storage'));
+    win.dispatchEvent(new Event('storage'))
   });
-
-  // Verificar que se limpió
   cy.window().then((win) => {
-    expect(win.localStorage.getItem('token')).to.be.null;
-    expect(win.localStorage.getItem('user')).to.be.null;
-  });
-});
+
+    expect(win.localStorage.getItem('token')).to.be.null
+    expect(win.localStorage.getItem('user')).to.be.null
+    expect(win.localStorage.getItem('clientEmail')).to.be.null
+
+  })
+})

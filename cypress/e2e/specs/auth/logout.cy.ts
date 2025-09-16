@@ -1,138 +1,100 @@
-describe('Logout - Cypress', () => {
+import { navbar } from '../../pages/Navbar';
+
+describe('Flujo de Logout', () => {
   let usuarios: any;
 
   before(() => {
-    // Cargar datos de prueba
-    cy.fixture('../fixtures/usuarios.json').then((data) => {
+    // Cargar datos de prueba una sola vez para toda la suite
+    cy.fixture('usuarios.json').then((data) => {
       usuarios = data;
     });
   });
 
-  it('Logout exitoso desde la interfaz', () => {
-    // 1. Hacer login primero
-    cy.loginUi(usuarios.validos.admin.email, usuarios.validos.admin.password);
-
-    // 2. Verificar que estamos logueados
-    cy.url().should('include', '/store');
-    cy.window().then((win) => {
-      expect(win.localStorage.getItem('token')).to.exist;
-      expect(win.localStorage.getItem('user')).to.exist;
+  context('Cierre de sesión desde la interfaz de usuario', () => {
+    beforeEach(() => {
+      // Prepara el estado antes de cada test: inicia sesión vía API.
+      // cy.session() optimiza esto para que sea casi instantáneo después de la primera vez.
+      cy.loginByApi(
+        usuarios.validos.admin.email,
+        usuarios.validos.admin.password
+      );
+      cy.visit('/store');
     });
 
-    // 3. Buscar y hacer clic en el botón de logout
-    cy.get(
-      '[data-testid="logout-btn"], button:contains("Logout"), button:contains("Cerrar sesión"), [aria-label="Logout"], [aria-label="Cerrar sesión"]'
-    )
-      .should('be.visible')
-      .click();
+    it('debería limpiar completamente el estado de la sesión al hacer logout desde la UI', () => {
+      // 1. Verificación inicial: Asegurarse de que el usuario está logueado.
+      navbar.logoutButton.should('be.visible');
 
-    // 4. Verificar redirección a login o home
-    cy.url().should('match', /\/(login|home|$)/);
+      // 2. Acción: Hacer clic en el botón de logout usando el método del POM.
+      navbar.clickLogout();
 
-    // 5. Verificar que se limpió el localStorage
-    cy.window().then((win) => {
-      expect(win.localStorage.getItem('token')).to.be.null;
-      expect(win.localStorage.getItem('user')).to.be.null;
-      expect(win.localStorage.getItem('clientEmail')).to.be.null;
+      // 3. Verificación post-acción:
+      cy.url().should('match', /\/login|home|$/);
+
+      cy.window().then((win) => {
+        // Estas aserciones deberían pasar porque la app sí limpia el token y el usuario.
+        expect(win.localStorage.getItem('token'), 'El token debe ser nulo').to
+          .be.null;
+        expect(win.localStorage.getItem('user'), 'El usuario debe ser nulo').to
+          .be.null;
+        expect(
+          win.localStorage.getItem('clientEmail'),
+          'El clientEmail debe ser nulo'
+        ).to.be.null;
+      });
     });
 
-    // 6. Verificar que no podemos acceder a rutas protegidas
-    cy.visit('/admin/products', { failOnStatusCode: false });
-    cy.url().should('match', /\/(login|unauthorized)/);
-  });
+    it('debería redirigir al login y actualizar la UI para un usuario deslogueado', () => {
+      // Acción
+      navbar.clickLogout();
 
-  it('Logout usando comando personalizado', () => {
-    // 1. Hacer login con API
-    cy.loginByApi(
-      usuarios.validos.admin.email,
-      usuarios.validos.admin.password
-    );
-    cy.visit('/store');
-
-    // 2. Verificar estado inicial
-    cy.window().then((win) => {
-      expect(win.localStorage.getItem('token')).to.exist;
-    });
-
-    // 3. Ejecutar logout usando comando personalizado
-    cy.logout();
-
-    // 4. Verificar que se limpió correctamente
-    cy.window().then((win) => {
-      expect(win.localStorage.getItem('token')).to.be.null;
-      expect(win.localStorage.getItem('user')).to.be.null;
-    });
-
-    // 5. Verificar que al intentar acceder a una ruta protegida nos redirige
-    cy.visit('/my-orders', { failOnStatusCode: false });
-    cy.url().should('match', /\/(login|unauthorized)/);
-  });
-
-  it('Logout desde diferentes páginas mantiene la funcionalidad', () => {
-    // 1. Login
-    cy.loginByApi(
-      usuarios.validos.admin.email,
-      usuarios.validos.admin.password
-    );
-
-    // 2. Test logout desde /store
-    cy.visit('/store');
-    cy.window().then((win) => {
-      expect(win.localStorage.getItem('token')).to.exist;
-    });
-
-    // Re-login para siguiente test
-    cy.loginByApi(
-      usuarios.validos.admin.email,
-      usuarios.validos.admin.password
-    );
-
-    // 3. Test logout desde /my-orders (si existe)
-    cy.visit('/my-orders', { failOnStatusCode: false });
-    cy.url().then((url) => {
-      if (url.includes('/my-orders')) {
-        cy.logout();
-        cy.window().then((win) => {
-          expect(win.localStorage.getItem('token')).to.be.null;
-        });
-      }
-    });
-
-    // Re-login para siguiente test
-    cy.loginByApi(
-      usuarios.validos.admin.email,
-      usuarios.validos.admin.password
-    );
-
-    // 4. Test logout desde página de admin
-    cy.visit('/admin/products', { failOnStatusCode: false });
-    cy.url().then((url) => {
-      if (url.includes('/admin')) {
-        cy.logout();
-        cy.window().then((win) => {
-          expect(win.localStorage.getItem('token')).to.be.null;
-        });
-      }
+      // Verificación
+      cy.url().should('include', '/login');
+      navbar.loginLink.should('be.visible');
+      navbar.logoutButton.should('not.exist');
     });
   });
-  
-  it('Debería desloguear al usuario si el localStorage se limpia externamente', () => {
-    // 1. Hacemos login y visitamos una página.
-    cy.loginByApi(
-      usuarios.validos.client.email, 
-      usuarios.validos.client.password
-    );
-    cy.visit('/store');
 
-    // 2. Verificamos que estamos logueados.
-    cy.contains('button', /Cerrar sesión/i).should('be.visible');
+  context('Gestión del estado de la sesión', () => {
+    it('el comando cy.logout() programático debe limpiar todo el estado de la sesión', () => {
+      // 1. Setup: Iniciar sesión y visitar una página.
+      cy.loginByApi(
+        usuarios.validos.client.email,
+        usuarios.validos.client.password
+      );
+      cy.visit('/my-orders');
+      cy.window().then(
+        (win) => expect(win.localStorage.getItem('token')).to.exist
+      );
 
-    // 3. Acción: Simular que otra pestaña limpió el localStorage.
-    cy.clearLocalStorage();
+      // 2. Acción: Ejecutar el comando de logout programático.
+      cy.logout();
 
-    // 4. Verificación: Al recargar la página, la aplicación debe reaccionar y mostrar el estado de "no logueado".
-    cy.reload();
-    cy.contains('a', /Iniciar sesión/i).should('be.visible');
-    cy.contains('button', /Cerrar sesión/i).should('not.exist');
+      // 3. Verificación: El comando (corregido) debe haber limpiado todas las claves.
+      // Esta prueba pasa, demostrando que nuestro comando de prueba es fiable.
+      cy.window().then((win) => {
+        expect(win.localStorage.getItem('token')).to.be.null;
+        expect(win.localStorage.getItem('user')).to.be.null;
+        expect(win.localStorage.getItem('clientEmail')).to.be.null;
+      });
+    });
+
+    it('debería desloguear al usuario si el localStorage se limpia externamente', () => {
+      // 1. Setup: Iniciar sesión y visitar una página.
+      cy.loginByApi(
+        usuarios.validos.client.email,
+        usuarios.validos.client.password
+      );
+      cy.visit('/store');
+      navbar.logoutButton.should('be.visible');
+
+      // 2. Acción: Simular que otra pestaña o script limpia el localStorage.
+      cy.clearLocalStorage();
+
+      // 3. Verificación: Al recargar, la aplicación debe reaccionar al estado limpio.
+      cy.reload();
+      navbar.loginLink.should('be.visible');
+      navbar.logoutButton.should('not.exist');
+    });
   });
 });

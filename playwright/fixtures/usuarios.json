@@ -3,15 +3,19 @@
     "admin": {
       "email": "admin@donjulio.com",
       "password": "Admin1234!"
+    },
+    "client": {
+      "email": "cliente@donjulio.com",
+      "password": "Cliente1234!"
     }
   },
   "invalidos": {
     "emailIncorrecto": {
       "email": "noexiste@test.com",
-      "password": "123456"
+      "password": "Admin1234!"
     },
     "passwordIncorrecto": {
-      "email": "user@test.com",
+      "email": "cliente@donjulio.com",
       "password": "wrongpass"
     }
   }
