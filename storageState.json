@@ -6,8 +6,7 @@
       "localStorage": [
         {
           "name": "token",
-          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4Y2ExZTEzNGU5Nzk1MTRjNTk4YTAwNiIsImVtYWlsIjoiYWRtaW5AZG9uanVsaW8uY29tIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzU4MDc5Njk4LCJleHAiOjE3NTgwODY4OTh9.60FHFZxdfeRyyrfNrOYmM9j3kmd5oq8GsL9IUJ9uOjw"
-
+          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4Y2FiYTRhYjg0NmUxNTFjZjk5ZDAwNCIsImVtYWlsIjoiYWRtaW5AZG9uanVsaW8uY29tIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzU4MTE3MzgxLCJleHAiOjE3NTgxMjQ1ODF9.nYesv2aZlye4DJ-tDSM0-CXAg3WLnVsknaUhUeszuQo"
         },
         {
           "name": "clientEmail",
@@ -15,7 +14,7 @@
         },
         {
           "name": "user",
-          "value": "{\"id\":\"68ca1e134e979514c598a006\",\"name\":\"Administrator\",\"lastname\":\"Don Julio\",\"email\":\"admin@donjulio.com\",\"role\":\"admin\"}"
+          "value": "{\"id\":\"68caba4ab846e151cf99d004\",\"name\":\"Administrator\",\"lastname\":\"Don Julio\",\"email\":\"admin@donjulio.com\",\"role\":\"admin\"}"
         },
         {
           "name": "shopping-cart",

@@ -1,11 +1,11 @@
-import { Col, Row, Button } from "react-bootstrap"
-import { StoreItem } from "../components/StoreItem.tsx"
-import { useEffect, useState } from "react"
-import axios from "axios"
-import { useSearchParams } from "react-router-dom"
-import Slider from "rc-slider"
-import 'rc-slider/assets/index.css'
-import { LoadingSpinner } from "../components/LoadingSpinner.tsx"
+import { Col, Row, Button } from 'react-bootstrap';
+import { StoreItem } from '../components/StoreItem.tsx';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useSearchParams } from 'react-router-dom';
+import Slider from 'rc-slider';
+import 'rc-slider/assets/index.css';
+import { LoadingSpinner } from '../components/LoadingSpinner.tsx';
 
 type Product = {
   id: string;
@@ -31,79 +31,90 @@ type Product = {
 };
 
 export function Store() {
-  const [products, setProducts] = useState<Product[]>([])
-  const [categories, setCategories] = useState<{ id: string; nombre: string }[]>([])
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
-  const [priceOrder, setPriceOrder] = useState<'asc' | 'desc' | ''>('')
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 60000])
-  const [page, setPage] = useState(1)
-  const [hasMore, setHasMore] = useState(true)
-  const [loading, setLoading] = useState(true)
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<
+    { id: string; nombre: string }[]
+  >([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [priceOrder, setPriceOrder] = useState<'asc' | 'desc' | ''>('');
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 60000]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(true);
 
-  const limit = 9
+  const limit = 9;
 
-  const [searchParams] = useSearchParams()
-  const initialSearch = searchParams.get("search") || ""
-  const [searchTerm, setSearchTerm] = useState(initialSearch)
+  const [searchParams] = useSearchParams();
+  const initialSearch = searchParams.get('search') || '';
+  const [searchTerm, setSearchTerm] = useState(initialSearch);
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/products?page=${page}&limit=${limit}`)
-      const data = response.data
-      setProducts(prev => page === 1 ? data.data : [...prev, ...data.data])
-      setHasMore(page < data.totalPages)
+      const response = await axios.get(
+        `${
+          import.meta.env.VITE_API_URL
+        }/api/products?page=${page}&limit=${limit}`
+      );
+      const data = response.data;
+      setProducts((prev) => (page === 1 ? data.data : [...prev, ...data.data]));
+      setHasMore(page < data.totalPages);
     } catch (error) {
-      console.error("Error al obtener productos", error)
+      console.error('Error al obtener productos', error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/product/implementar`)
-      setCategories(response.data.data)
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/product/implementar`
+      );
+      setCategories(response.data.data);
     } catch (error) {
-      console.error("Error al obtener categorías", error)
+      console.error('Error al obtener categorías', error);
     }
-  }
+  };
 
   useEffect(() => {
     // Solo mostrar loading en primera carga
-    if (page === 1) setLoading(true)
-    fetchProducts()
-    fetchCategories()
-  }, [page])
+    if (page === 1) setLoading(true);
+    fetchProducts();
+    fetchCategories();
+  }, [page]);
 
-  let filteredProducts = products.filter(product => {
-    const nombre = product.nombre?.toLowerCase() || ''
-    const marca = product.productBrand?.nombre?.toLowerCase() || ''
-    const clase = product.productClass?.name?.toLowerCase() || ''
-    const categoriaId = product.category?.id || ''
-    const precio = parseFloat(product.precio)
-    const search = searchTerm.toLowerCase()
+  let filteredProducts = products.filter((product) => {
+    const nombre = product.nombre?.toLowerCase() || '';
+    const marca = product.productBrand?.nombre?.toLowerCase() || '';
+    const clase = product.productClass?.name?.toLowerCase() || '';
+    const categoriaId = product.category?.id || '';
+    const precio = parseFloat(product.precio);
+    const search = searchTerm.toLowerCase();
 
     const coincideBusqueda =
       nombre.includes(search) ||
       marca.includes(search) ||
-      clase.includes(search)
+      clase.includes(search);
 
     const coincideCategoria =
-      !selectedCategory || categoriaId === selectedCategory
+      !selectedCategory || categoriaId === selectedCategory;
 
-    const dentroDeRango =
-      precio >= priceRange[0] && precio <= priceRange[1]
+    const dentroDeRango = precio >= priceRange[0] && precio <= priceRange[1];
 
-    return coincideBusqueda && coincideCategoria && dentroDeRango
-  })
+    return coincideBusqueda && coincideCategoria && dentroDeRango;
+  });
 
   if (priceOrder === 'asc') {
-    filteredProducts = filteredProducts.sort((a, b) => parseFloat(a.precio) - parseFloat(b.precio))
+    filteredProducts = filteredProducts.sort(
+      (a, b) => parseFloat(a.precio) - parseFloat(b.precio)
+    );
   } else if (priceOrder === 'desc') {
-    filteredProducts = filteredProducts.sort((a, b) => parseFloat(b.precio) - parseFloat(a.precio))
+    filteredProducts = filteredProducts.sort(
+      (a, b) => parseFloat(b.precio) - parseFloat(a.precio)
+    );
   }
 
-  if (loading) return <LoadingSpinner />
+  if (loading) return <LoadingSpinner />;
 
   return (
     <>
@@ -122,12 +133,18 @@ export function Store() {
       )}
 
       <div className="mb-3 d-flex flex-wrap gap-2">
-        {categories.map(category => (
+        {categories.map((category) => (
           <button
             key={category.id}
-            className={`btn ${selectedCategory === category.id ? 'btn-primary' : 'btn-outline-primary'}`}
+            className={`btn ${
+              selectedCategory === category.id
+                ? 'btn-primary'
+                : 'btn-outline-primary'
+            }`}
             onClick={() =>
-              setSelectedCategory(prev => prev === category.id ? null : category.id)
+              setSelectedCategory((prev) =>
+                prev === category.id ? null : category.id
+              )
             }
           >
             {category.nombre}
@@ -138,28 +155,35 @@ export function Store() {
       <div className="d-flex flex-wrap gap-4 mb-4 align-items-center">
         <div style={{ minWidth: 300 }}>
           <label className="form-label">Filtrar por precio</label>
-          <Slider
-            range
-            min={0}
-            max={60000}
-            step={100}
-            defaultValue={priceRange}
-            onChange={(value) => setPriceRange(value as [number, number])}
-            marks={{ 0: '$0', 60000: '$60k' }}
-            data-testid="price-slider"
-          />
+          <div data-testid="price-slider">
+            <Slider
+              range
+              min={0}
+              max={60000}
+              step={100}
+              defaultValue={priceRange}
+              onChange={(value) => setPriceRange(value as [number, number])}
+              marks={{ 0: '$0', 60000: '$60k' }}
+            />
+          </div>
           <div className="mt-4">
-            <small>Desde: ${priceRange[0]} — Hasta: ${priceRange[1]}</small>
+            <small>
+              Desde: ${priceRange[0]} — Hasta: ${priceRange[1]}
+            </small>
           </div>
         </div>
 
         <div>
-          <label htmlFor="order" className="form-label">Ordenar por precio</label>
+          <label htmlFor="order" className="form-label">
+            Ordenar por precio
+          </label>
           <select
             id="order"
             className="form-select"
             value={priceOrder}
-            onChange={(e) => setPriceOrder(e.target.value as 'asc' | 'desc' | '')}
+            onChange={(e) =>
+              setPriceOrder(e.target.value as 'asc' | 'desc' | '')
+            }
             data-testid="sort-select"
           >
             <option value="">Sin orden</option>
@@ -170,7 +194,7 @@ export function Store() {
       </div>
 
       <Row md={2} xs={1} lg={3} className="g-3">
-        {filteredProducts.map(product => (
+        {filteredProducts.map((product) => (
           <Col key={product.id}>
             <StoreItem {...product} />
           </Col>
@@ -179,15 +203,16 @@ export function Store() {
 
       {filteredProducts.length === 0 && (
         <div className="alert alert-warning mt-4" role="alert">
-          No se encontraron productos que coincidan con los filtros seleccionados.
+          No se encontraron productos que coincidan con los filtros
+          seleccionados.
         </div>
       )}
 
       {hasMore && (
         <div className="text-center mt-4">
-          <Button onClick={() => setPage(prev => prev + 1)}>Ver más</Button>
+          <Button onClick={() => setPage((prev) => prev + 1)}>Ver más</Button>
         </div>
       )}
     </>
-  )
+  );
 }

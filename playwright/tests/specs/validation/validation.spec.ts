@@ -31,8 +31,8 @@ test.describe('Pruebas de Filtros en la Tienda - Playwright', () => {
     const terminoBusqueda = 'Premium';
 
     // 1. Acción: Se llama al método definido en la clase Navbar, busca y llena el textarea.
-    await navbar.fillSearchArea(terminoBusqueda);
-    await navbar.clickSearchButton();
+
+    await storePage.searchFor(terminoBusqueda);
 
     // 2. Aserción: Ahora que sabemos que el filtro se aplicó, verificamos el contenido.
     await expect(

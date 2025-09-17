@@ -2,26 +2,32 @@ import { StorePage } from '../../pages/StorePage';
 
 describe('Pruebas de Filtros en la Tienda - Cypress', () => {
   const storePage = new StorePage();
+  let products: any;
 
   beforeEach(() => {
     // Cargamos nuestro fixture para tenerlo disponible en los tests.
-    cy.fixture('products.json').as('products');
+    cy.fixture('product.json').then((data) => {
+      products = data;
+    });
 
     // Interceptamos las llamadas a la API para sincronizar las pruebas.
     cy.intercept('GET', '**/api/products*').as('apiProducts');
-    
+
     // Visitamos la página de la tienda.
     cy.visit('/store');
-    
+
     // Esperamos a que la carga inicial de productos finalice.
     cy.wait('@apiProducts');
-    storePage.getProductCards().should('be.visible');
+
+    storePage.getProductCards().should('have.length.at.least', 1);
+    storePage.sortSelect.should('be.visible');
+    storePage.priceSliderHandleMin.should('be.visible');
   });
 
-  // Nota: Usamos 'function ()' en lugar de '() =>' para poder usar 'this.products' del fixture.
+  // Nota: Usamos 'function ()' en lugar de '() =>' para poder usar 'products' del fixture.
   it('Debería filtrar los productos correctamente al usar el buscador de texto', function () {
-    const productoPremium = this.products.premium;
-    const productoHacienda = this.products.hacienda;
+    const productoHacienda = products.hacienda;
+    const productoPremium = products.premium;
 
     // 1. Acción: Usamos el método del POM para buscar.
     storePage.searchFor(productoPremium.nombre);
@@ -58,11 +64,11 @@ describe('Pruebas de Filtros en la Tienda - Cypress', () => {
   });
 
   it('Debería filtrar por rango de precios usando el slider', function () {
-    const productoPremium = this.products.premium; // Precio: 2500
-    const productoHacienda = this.products.hacienda; // Precio: 1800
+    const productoPremium = products.premium; // Precio: 2500
+    const productoHacienda = products.hacienda; // Precio: 1800
 
     // 1. Acción: Mover el slider para establecer un precio mínimo de ~2000.
-    storePage.priceSliderHandleMin.click().type('{rightarrow}'.repeat(10));
+    storePage.setMinValueByDrag(2000);
     cy.wait('@apiProducts');
 
     // 2. Aserción: El producto más barato ya no debe ser visible.
