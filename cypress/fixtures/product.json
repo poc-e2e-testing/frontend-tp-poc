@@ -1,0 +1,10 @@
+{
+  "premium": {
+    "nombre": "Don Julio Premium Granos 500g",
+    "precio": 2500
+  },
+  "hacienda": {
+    "nombre": "Hacienda Del Valle Molido 250g",
+    "precio": 1800
+  }
+}
