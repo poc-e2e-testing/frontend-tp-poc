@@ -73,17 +73,17 @@ const Navbar = () => {
         <NavbarBs.Toggle aria-controls="navbar-nav" />
         <NavbarBs.Collapse id="navbar-nav">
           <Nav className="me-auto align-items-lg-center">
-            <Nav.Link to="/" as={NavLink}>
+            <Nav.Link data-testid="inicio-button" to="/" as={NavLink}>
               Inicio
             </Nav.Link>
-            <Nav.Link to="/store" as={NavLink}>
+            <Nav.Link data-testid="tienda-button" to="/store" as={NavLink}>
               Tienda
             </Nav.Link>
-            <Nav.Link to="/about" as={NavLink}>
+            <Nav.Link data-testid="nosotros-button" to="/about" as={NavLink}>
               Nosotros
             </Nav.Link>
             {user && (
-              <Nav.Link to="/my-orders" as={NavLink}>
+              <Nav.Link data-testid="mis-ordenes-button" to="/my-orders" as={NavLink}>
                 Mis Órdenes
               </Nav.Link>
             )}
