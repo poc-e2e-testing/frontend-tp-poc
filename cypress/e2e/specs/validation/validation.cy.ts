@@ -68,7 +68,9 @@ describe('Pruebas de Filtros en la Tienda - Cypress', () => {
     const productoHacienda = products.hacienda; // Precio: 1800
 
     // 1. Acción: Mover el slider para establecer un precio mínimo de ~2000.
-    storePage.setMinValueByDrag(2000);
+    storePage.setPriceSliderMin(2000);
+
+    // Esperar que se carguen los productos en la vista
     cy.wait('@apiProducts');
 
     // 2. Aserción: El producto más barato ya no debe ser visible.

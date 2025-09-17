@@ -32,34 +32,26 @@ export class StorePage {
     this.sortSelect.select(direction);
   }
 
-  setMinValue(value: number) {
-    // Seleccionamos el input subyacente, le cambiamos el valor con invoke,
-    // y luego disparamos el evento 'input' para que React actualice la UI.
-    this.priceSliderHandleMin
-      .click()
-      .invoke('val', value)
-      .trigger('input', { force: true });
-  }
+  public setPriceSliderMin(targetValue: number): void {
+  // Estos valores deben coincidir con los de tu componente React
+  const min = 0;
+  const step = 100;
 
-  setMinValueByDrag(targetValue: number) {
-    const min = 0;
-    const max = 60000; // Estos valores vienen de tu componente en Store.tsx
+  // 1. Calculamos cuántas veces necesitamos presionar la flecha derecha.
+  // Si targetValue es 2000, y el step es 100, necesitamos presionarla 20 veces.
+  const stepsToMove = (targetValue - min) / step;
+  if (stepsToMove < 0) return; // No hacemos nada si el valor es inválido
 
-    // Calculamos la posición porcentual
-    const percent = (targetValue - min) / (max - min);
+  const keyPresses = '{rightarrow}'.repeat(stepsToMove);
 
-    // Obtenemos el ancho del slider para calcular la posición en píxeles
-    cy.get('[data-testid="price-slider"]').then(($slider) => {
-      const sliderWidth = $slider.width();
-      const targetX = sliderWidth * percent;
-
-      // Simulamos la secuencia de eventos de arrastre
-      this.priceSliderHandleMin
-        .trigger('mousedown', { which: 1, force: true })
-        .trigger('mousemove', { clientX: targetX, force: true })
-        .trigger('mouseup', { force: true });
-    });
-  }
+  // 2. Usamos el selector robusto y la interacción de teclado,
+  //    que es mucho más fiable que un drag-and-drop simulado.
+  this.priceSliderHandleMin
+    .should('be.visible')
+    .focus()
+    .type(keyPresses);
+}
+  
   // --- Helper para Aserciones ---
   /**
    * Obtiene los precios de todas las tarjetas de producto visibles,
