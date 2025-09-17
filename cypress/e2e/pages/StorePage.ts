@@ -1,4 +1,4 @@
-export class StorePage {
+class StorePage {
   // --- Elementos de Filtro ---
   get searchInput() {
     return cy.get('[data-testid="search-textarea"]');
@@ -69,3 +69,5 @@ export class StorePage {
       .then(() => prices); // Devolvemos el array de precios
   }
 }
+
+export const storePage = new StorePage();
