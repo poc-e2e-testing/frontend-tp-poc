@@ -9,6 +9,9 @@ export class Navbar {
   public readonly loginLink: Locator;
   public readonly welcomeMessage: Locator;
 
+  public readonly searchTextarea: Locator;
+  public readonly searchButton: Locator;
+
   constructor(page: Page) {
     this.page = page;
 
@@ -16,6 +19,9 @@ export class Navbar {
     this.logoutButton = page.getByTestId('logout-button');
     this.loginLink = page.getByTestId('login-link');
     this.welcomeMessage = page.getByTestId('welcome-message');
+
+    this.searchTextarea = page.getByTestId('search-textarea');
+    this.searchButton = page.getByTestId('search-button');
   }
 
   // --- Acciones ---
@@ -25,5 +31,14 @@ export class Navbar {
    */
   async clickLogout() {
     await this.logoutButton.click();
+  }
+
+  async fillSearchArea(textToFill: string) {
+    await this.searchTextarea.click();
+    await this.searchTextarea.fill(textToFill);
+  }
+
+  async clickSearchButton() {
+    await this.searchButton.click();
   }
 }

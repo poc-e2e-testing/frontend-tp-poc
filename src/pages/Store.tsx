@@ -146,6 +146,7 @@ export function Store() {
             defaultValue={priceRange}
             onChange={(value) => setPriceRange(value as [number, number])}
             marks={{ 0: '$0', 60000: '$60k' }}
+            data-testid="price-slider"
           />
           <div className="mt-4">
             <small>Desde: ${priceRange[0]} — Hasta: ${priceRange[1]}</small>
@@ -159,6 +160,7 @@ export function Store() {
             className="form-select"
             value={priceOrder}
             onChange={(e) => setPriceOrder(e.target.value as 'asc' | 'desc' | '')}
+            data-testid="sort-select"
           >
             <option value="">Sin orden</option>
             <option value="asc">Menor a mayor</option>

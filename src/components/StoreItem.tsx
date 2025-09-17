@@ -60,7 +60,7 @@ export function StoreItem({
 
   return (
     <>
-      <Card className="h-100">
+      <Card className="h-100" data-testid="product-card">
         <Card.Img
           variant="top"
           src={imagePath}
@@ -72,7 +72,7 @@ export function StoreItem({
         <Card.Body className="d-flex flex-column">
           <Card.Title className="d-flex justify-content-between align-items-baseline mb-4">
             <span className="fs-2">{nombre}</span>
-            <span className="ms-2 text-muted">
+            <span className="ms-2 text-muted" data-testid="product-price">
               {formatCurrency(Number(precio))}
             </span>
           </Card.Title>

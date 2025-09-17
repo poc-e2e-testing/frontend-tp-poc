@@ -99,9 +99,11 @@ const Navbar = () => {
                 placeholder="Buscar productos"
                 className="me-2"
                 value={searchQuery}
+                data-testId='search-textarea'
                 onChange={handleSearchChange}
+                data-testid="search-input"
               />
-              <Button variant="outline-success" type="submit">
+              <Button variant="outline-success" data-testId='search-button' type="submit">
                 Buscar
               </Button>
             </Form>
