@@ -1,5 +1,4 @@
 class Navbar {
-
   get logoutButton() {
     return cy.get('[data-testid="logout-button"]');
   }

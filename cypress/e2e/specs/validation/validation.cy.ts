@@ -1,85 +1,92 @@
+import { StorePage } from '../../pages/StorePage';
+
 describe('Pruebas de Filtros en la Tienda - Cypress', () => {
+  const storePage = new StorePage();
+  let products: any;
 
   beforeEach(() => {
-    // Visitamos la página de la tienda antes de cada test.
+    // Cargamos nuestro fixture para tenerlo disponible en los tests.
+    cy.fixture('product.json').then((data) => {
+      products = data;
+    });
+
+    // Interceptamos las llamadas a la API para sincronizar las pruebas.
+    cy.intercept('GET', '**/api/products*').as('apiProducts');
+
+    // Visitamos la página de la tienda.
     cy.visit('/store');
-    // Esperamos a que los productos iniciales se carguen.
-    // Buscamos que haya al menos una tarjeta de producto visible.
-    cy.get('.card').should('be.visible');
+
+    // Esperamos a que la carga inicial de productos finalice.
+    cy.wait('@apiProducts');
+
+    storePage.getProductCards().should('have.length.at.least', 1);
+    storePage.sortSelect.should('be.visible');
+    storePage.priceSliderHandleMin.should('be.visible');
   });
 
-  it('Debería filtrar los productos correctamente al usar el buscador de texto', () => {
-    // Datos de prueba (sabemos por el seeder.ts que existen estos productos)
-    const productoPremium = 'Don Julio Premium Granos 500g';
-    const productoHacienda = 'Hacienda Del Valle Molido 250g';
+  // Nota: Usamos 'function ()' en lugar de '() =>' para poder usar 'products' del fixture.
+  it('Debería filtrar los productos correctamente al usar el buscador de texto', function () {
+    const productoHacienda = products.hacienda;
+    const productoPremium = products.premium;
+
+    // 1. Acción: Usamos el método del POM para buscar.
+    storePage.searchFor(productoPremium.nombre);
+    cy.wait('@apiProducts');
+
+    // 2. Aserción: Verificamos que solo el producto buscado es visible.
+    storePage.getProductCards().should('have.length', 1);
+    storePage.getProductCards().should('contain', productoPremium.nombre);
+    storePage.getProductCards().should('not.contain', productoHacienda.nombre);
+  });
+
+  it('Debería mantener el término de búsqueda en el input después de buscar', function () {
     const terminoBusqueda = 'Premium';
 
-    // 1. Acción: Encontrar el input de búsqueda y escribir en él.
-    cy.get('input[placeholder="Buscar productos"]').type(terminoBusqueda);
+    // 1. Acción: Usamos el método del POM para buscar.
+    storePage.searchFor(terminoBusqueda);
+    cy.wait('@apiProducts'); // Esperamos a que la búsqueda finalice
 
-    cy.get('button').contains('Buscar').click();
-
-    // 2. Aserción: Verificar el resultado.
-    cy.contains('.card', productoPremium).should('be.visible');
-    cy.contains('.card', productoHacienda).should('not.exist');
+    // 2. Aserción: Verificamos que el input de búsqueda AÚN CONTIENE el valor buscado.
+    // Esta es la validación clave de la buena práctica de UX.
+    storePage.searchInput.should('have.value', terminoBusqueda);
   });
 
   it('Debería ordenar los productos por precio de menor a mayor', () => {
-    // 1. Acción: Seleccionar la opción "Menor a mayor" en el dropdown.
-    cy.get('select#order').select('asc'); // 'asc' es el value de la opción en el HTML.
+    // 1. Acción: Seleccionar la opción "Menor a mayor" usando el POM.
+    storePage.sortByPrice('asc');
+    cy.wait('@apiProducts');
 
-    // Damos un pequeño respiro para que React re-renderice
-    cy.wait(500);
-
-    // 2. Aserción: Verificar que los precios están ordenados.
-    const prices: number[] = [];
-    cy.get('.card:visible .ms-2.text-muted')
-      .each(($el) => {
-        // Obtenemos el texto del precio, lo limpiamos (quitamos '$' y ',') y lo convertimos a número.
-        const priceText = $el.text().replace(/[$,]/g, '');
-        prices.push(parseFloat(priceText));
-      })
-      .then(() => {
-        // Después de recolectar todos los precios, los comparamos.
-        const sortedPrices = [...prices].sort((a, b) => a - b);
-        expect(prices).to.deep.equal(sortedPrices);
-      });
+    // 2. Aserción: Usamos el helper del POM para obtener los precios y verificarlos.
+    storePage.getProductPrices().then((prices) => {
+      const sortedPrices = [...prices].sort((a, b) => a - b);
+      expect(prices).to.deep.equal(sortedPrices);
+    });
   });
 
   it('Debería ordenar los productos por precio de mayor a menor', () => {
-    // 1. Acción: Seleccionar la opción "Mayor a menor" en el dropdown.
-    cy.get('select#order').select('desc');
+    // 1. Acción: Seleccionar la opción "Mayor a menor" usando el POM.
+    storePage.sortByPrice('desc');
+    cy.wait('@apiProducts');
 
-    // Damos un pequeño respiro para que React re-renderice
-    cy.wait(500);
-
-    // 2. Aserción: Verificar que los precios están ordenados.
-    const prices: number[] = [];
-    cy.get('.card:visible .ms-2.text-muted')
-      .each(($el) => {
-        // Obtenemos el texto del precio, lo limpiamos (quitamos '$' y ',') y lo convertimos a número.
-        const priceText = $el.text().replace(/[$,]/g, '');
-        prices.push(parseFloat(priceText));
-      })
-      .then(() => {
-        // Después de recolectar todos los precios, los comparamos.
-        const sortedPrices = [...prices].sort((a, b) => b - a);
-        expect(prices).to.deep.equal(sortedPrices);
-      });
+    // 2. Aserción: Verificamos el orden descendente.
+    storePage.getProductPrices().then((prices) => {
+      const sortedPrices = [...prices].sort((a, b) => b - a);
+      expect(prices).to.deep.equal(sortedPrices);
+    });
   });
 
-  it('Debería filtrar por rango de precios usando el slider', () => {
-    const productoPremium = 'Don Julio Premium Granos 500g';
-    const productoHacienda = 'Hacienda Del Valle Molido 250g';
+  it('Debería filtrar por rango de precios usando el slider', function () {
+    const productoPremium = products.premium; // Precio: 2500
+    const productoHacienda = products.hacienda; // Precio: 1800
 
-    // 1. Acción: Mover el manejador izquierdo del slider hacia la derecha para subir el precio minimo a 2000 o más.
-    // `{rightarrow}` simula presionar la tecla de flecha derecha. Lo repetimos 20 veces.
-    cy.get('.rc-slider-handle').eq(0) // .eq(0) selecciona el primer manejador (el de la izquierda).
-      .click()
-      .type('{rightarrow}'.repeat(20))
+    // 1. Acción: Mover el slider para establecer un precio mínimo de ~2000.
+    storePage.setPriceSliderMin(2000);
 
-    cy.contains('.card', productoHacienda).should('not.exist');
-    cy.contains('.card', productoPremium).should('be.visible');
+    // Esperar que se carguen los productos en la vista
+    cy.wait('@apiProducts');
+
+    // 2. Aserción: El producto más barato ya no debe ser visible.
+    storePage.getProductCards().should('contain', productoPremium.nombre);
+    storePage.getProductCards().should('not.contain', productoHacienda.nombre);
   });
-  
 });
