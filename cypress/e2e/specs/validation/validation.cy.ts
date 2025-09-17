@@ -39,6 +39,18 @@ describe('Pruebas de Filtros en la Tienda - Cypress', () => {
     storePage.getProductCards().should('not.contain', productoHacienda.nombre);
   });
 
+  it('Debería mantener el término de búsqueda en el input después de buscar', function () {
+    const terminoBusqueda = 'Premium';
+
+    // 1. Acción: Usamos el método del POM para buscar.
+    storePage.searchFor(terminoBusqueda);
+    cy.wait('@apiProducts'); // Esperamos a que la búsqueda finalice
+
+    // 2. Aserción: Verificamos que el input de búsqueda AÚN CONTIENE el valor buscado.
+    // Esta es la validación clave de la buena práctica de UX.
+    storePage.searchInput.should('have.value', terminoBusqueda);
+  });
+
   it('Debería ordenar los productos por precio de menor a mayor', () => {
     // 1. Acción: Seleccionar la opción "Menor a mayor" usando el POM.
     storePage.sortByPrice('asc');

@@ -49,6 +49,21 @@ test.describe('Pruebas de Filtros en la Tienda - Playwright', () => {
 
   });
 
+  test('Debería mantener el término de búsqueda en el input después de buscar', async ({ page }) => {
+    const terminoBusqueda = 'Premium';
+
+    // 1. Acción: Usamos el método del POM para buscar.
+    await storePage.searchFor(terminoBusqueda);
+
+    // Playwright esperará automáticamente a que la acción de búsqueda se complete
+    // antes de pasar a la siguiente línea. Para ser más robustos, podemos esperar
+    // a que un resultado sea visible para confirmar que el filtro se aplicó.
+    await expect(storePage.getProductCards().first()).toBeVisible();
+
+    // 2. Aserción: Verificamos que el input de búsqueda AÚN CONTIENE el valor buscado.
+    await expect(storePage.searchInput).toHaveValue(terminoBusqueda);
+  });
+
   test('Debería ordenar los productos por precio de menor a mayor', async ({ page }) => {
     // 1. Acción: Seleccionamos la opción 'asc' en el dropdown.
     await storePage.sortByPrice('asc');

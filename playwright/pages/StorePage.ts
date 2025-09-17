@@ -11,7 +11,7 @@ export class StorePage {
 
   constructor(page: Page) {
     this.page = page;
-    this.searchInput = page.getByTestId('search-input');
+    this.searchInput = page.getByTestId('search-textarea');
     this.searchButton = page.getByTestId('search-button');
     this.sortSelect = page.getByTestId('sort-select');
     this.priceSliderHandleMin = page.locator('.rc-slider-handle').first();
