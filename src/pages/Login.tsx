@@ -69,6 +69,7 @@ const Login = () => {
             onChange={e => setEmail(e.target.value)}
             className='login-input'
             style={{ width: '100%', padding: 8 }}
+            data-testid='email-input'
           />
         </div>
         <div style={{ marginBottom: 10 }}>
@@ -81,9 +82,10 @@ const Login = () => {
             onChange={e => setPassword(e.target.value)}
             className='login-input'
             style={{ width: '100%', padding: 8 }}
+            data-testid='password-input'
           />
         </div>
-        <button type="submit" style={{ padding: '10px 20px' }}>
+        <button type="submit" data-testid='login-button' style={{ padding: '10px 20px' }}>
           Entrar
         </button>
       </form>
