@@ -1,26 +1,35 @@
+import { navbar } from "../../pages/Navbar"
+
+let usuarios;
+
+before(() => {
+  cy.fixture('usuarios.json').then((data) => {
+    usuarios = data;
+  });
+});
+
 describe('Navegación Post-Login - Cypress', () => {
   beforeEach(() => {
-    // Login usando comando personalizado
-    cy.loginByApi(Cypress.env('ADMIN_EMAIL'), Cypress.env('ADMIN_PASSWORD'))
+    cy.loginByApi(usuarios.validos.admin.email, usuarios.validos.admin.password)
+    cy.visit('/') 
   })
 
   it('Navegar entre secciones manteniendo sesión', () => {
-    // Ir a Store
-    cy.visit('/store')
+    navbar.tiendaLink.click()
     cy.url().should('include', '/store')
     
-    // Ir a My Orders
-    cy.visit('/my-orders')
+    navbar.misOrdenesLink.click()
     cy.url().should('include', '/my-orders')
+
+    navbar.adminPanelLink.click()
+    cy.url().should('include', '/adm-store')
     
-    cy.visit('/my-profile')
-    cy.url().should('include', '/my-profile')
+    navbar.inicioLink.click()
+    cy.url().should('eq', Cypress.config().baseUrl + '/')
+
+    navbar.nosotrosLink.click()
+    cy.url().should('include', '/about')
     
-    cy.visit('/admin/products')
-    cy.url().should('include', '/admin/products')
-    
-    
-    // Verificar que sesión se mantiene
     cy.window().then((win) => {
       expect(win.localStorage.getItem('token')).to.exist
     })
