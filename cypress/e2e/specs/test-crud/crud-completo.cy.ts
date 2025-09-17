@@ -6,33 +6,25 @@ import { ProductCard } from '../../pages/ProductCard';
 describe('CRUD de producto en Don Julio Cafe', () => {
   const filePath = 'cypress/fixtures/cafe.jpg';
   let nombreProducto: string;
-  let admin: { email: string; password: string };
+  let admin: any;
 
   before(() => {
     // Generar nombre único una sola vez
     nombreProducto = `Café Dorado ${Math.floor(Math.random() * 100000)}`;
 
-    // Cargar credenciales de admin
-    cy.fixture('userAdmin.json').then((user) => {
-      admin = user.admin;
+    cy.fixture('usuarios.json').then((data) => {
+      admin= data;
     });
   });
 
   beforeEach(() => {
-    // Login antes de cada test para mantener la sesión
-    cy.visit('http://localhost:5173/');
-    cy.contains('Bienvenido a Don Julio Cafe').should('be.visible');
-
-    cy.contains('a', 'Iniciar sesión').click();
-    cy.contains('h1,h2,h3', 'Iniciar Sesión').should('be.visible');
-
-    cy.get('#email').clear().type(admin.email);
-    cy.get('#password').clear().type(admin.password);
-    cy.contains('button', 'Entrar').click();
-
-    // Ir al panel de administración
-    cy.contains('a', 'Panel Admin').should('be.visible').click();
-    cy.contains('h1,h2,h3', 'Store').should('be.visible');
+    // Prepara el estado antes de cada test: inicia sesión vía API.
+    // cy.session() optimiza esto para que sea casi instantáneo después de la primera vez.
+    cy.loginByApi(
+      admin.validos.admin.email,
+      admin.validos.admin.password
+    );
+    cy.visit('/adm-store');
   });
 
   it('1. Crear producto', () => {
