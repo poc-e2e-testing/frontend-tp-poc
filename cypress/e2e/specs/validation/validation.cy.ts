@@ -1,7 +1,6 @@
-import { StorePage } from '../../pages/StorePage';
+import { storePage } from '../../pages/StorePage';
 
 describe('Pruebas de Filtros en la Tienda - Cypress', () => {
-  const storePage = new StorePage();
   let products: any;
 
   beforeEach(() => {
