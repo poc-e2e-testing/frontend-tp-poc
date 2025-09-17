@@ -1,14 +1,17 @@
 /// <reference types="cypress" />
 
+import { ProductForm } from '../../pages/ProductForm';
+import { ProductCard } from '../../pages/ProductCard';
+
 describe('CRUD de producto en Don Julio Cafe', () => {
-  const filePath = 'playwright/fixtures/cafe.jpg';
+  const filePath = 'cypress/fixtures/cafe.jpg';
   let nombreProducto: string;
   let admin: { email: string; password: string };
 
   before(() => {
     // Generar nombre único una sola vez
     nombreProducto = `Café Dorado ${Math.floor(Math.random() * 100000)}`;
-    
+
     // Cargar credenciales de admin
     cy.fixture('userAdmin.json').then((user) => {
       admin = user.admin;
@@ -33,120 +36,79 @@ describe('CRUD de producto en Don Julio Cafe', () => {
   });
 
   it('1. Crear producto', () => {
+    const form = new ProductForm();
+
     cy.log(`**Creando producto: ${nombreProducto}**`);
-    
-    // Creación de producto
-    cy.get('input[name="nombre"]').type(nombreProducto);
-    cy.get('input[name="descripcion"]').type('Café tostado premium');
-    cy.get('input[placeholder="Precio"]').type('500');
-    cy.get('input[placeholder="Stock"]').type('10');
 
-    // Esperar a que los selects estén cargados y seleccionar opciones
-    cy.get('select[name="productBrand"]')
-      .find('option')
-      .should('have.length.greaterThan', 1)
-      .then(() => {
-        cy.get('select[name="productBrand"]').select('Don Julio Premium');
-      });
+    form.fillForm({
+      nombre: nombreProducto,
+      descripcion: 'Café tostado premium',
+      precio: '500',
+      stock: '10',
+      brand: 'Don Julio Premium',
+      productClass: 'Granos',
+      filePath,
+    });
 
-    cy.get('select[name="productClass"]')
-      .find('option')
-      .should('have.length.greaterThan', 1)
-      .then(() => {
-        cy.get('select[name="productClass"]').select('Granos');
-      });
+    form.expectPreviewVisible();
+    form.submitAndExpectAddSuccess();
 
-    // Subir imagen
-    cy.get('input[type="file"]').selectFile(filePath, { force: true });
-    cy.get('img[alt="Vista previa"]').should('be.visible');
-
-    // Crear producto
-    cy.contains('button', 'Agregar Producto').click();
-    cy.contains('Producto agregado correctamente').should('be.visible');
-
-    // Verificar que el producto fue creado
+    // Verificar producto creado
+    const card = new ProductCard(nombreProducto);
     cy.visit('http://localhost:5173/adm-store');
-    cy.contains('div.card', nombreProducto).should('be.visible');
-    cy.contains('div.card', nombreProducto).should('contain', '500');
+    card.expectVisible();
+    card.expectPrice('500');
   });
 
   it('2. Editar producto', () => {
-    cy.log(`**Editando producto: ${nombreProducto}**`);
-    
-    // Ir a la tienda para editar
-    cy.visit('http://localhost:5173/adm-store');
-    
-    // Verificar que el producto existe antes de editarlo
-    cy.contains('div.card', nombreProducto).should('be.visible');
-    
-    // Hacer click en editar
-    cy.contains('div.card', nombreProducto).within(() => {
-      cy.contains('button', 'Editar').click();
-    });
+    const form = new ProductForm();
+    const card = new ProductCard(nombreProducto);
 
-    // Esperar confirmación de que el producto se cargó
+    cy.log(`**Editando producto: ${nombreProducto}**`);
+
+    cy.visit('http://localhost:5173/adm-store');
+    card.expectVisible();
+    card.clickEdit();
+
     cy.contains('Producto cargado para editar').should('be.visible');
 
-    // Esperar a que los selects estén cargados y seleccionar opciones
-    cy.get('select[name="productBrand"]')
-      .find('option')
-      .should('have.length.greaterThan', 1)
-      .then(() => {
-        cy.get('select[name="productBrand"]').select('Don Julio Premium');
-      });
+    form.fillForm({
+      precio: '600',
+       brand: 'Don Julio Premium',
+      productClass: 'Granos',
+      filePath,
+    });
 
-    cy.get('select[name="productClass"]')
-      .find('option')
-      .should('have.length.greaterThan', 1)
-      .then(() => {
-        cy.get('select[name="productClass"]').select('Granos');
-      });
+    form.expectPreviewVisible();
+    form.submitUpdateAndExpectSuccess();
 
-    // Cambiar el precio y subir imagen
-    cy.get('input[placeholder="Precio"]').clear().type('600');
-    cy.get('input[type="file"]').selectFile(filePath, { force: true });
-    cy.get('img[alt="Vista previa"]').should('be.visible');
-
-    // Actualizar producto
-    cy.contains('button', 'Actualizar Producto').click();
-    cy.contains('Producto actualizado correctamente').should('be.visible');
-
-    // Verificar que el producto fue editado
+    // Verificar que se actualizó
     cy.visit('http://localhost:5173/adm-store');
-    cy.contains('div.card', nombreProducto).should('be.visible');
-    cy.contains('div.card', nombreProducto).should('contain', '600');
+    card.expectVisible();
+    card.expectPrice('600');
   });
 
   it('3. Eliminar producto', () => {
-    cy.log(`**Eliminando producto: ${nombreProducto}**`);
-    
-    // Ir a la tienda para eliminar
-    cy.visit('http://localhost:5173/adm-store');
-    
-    // Verificar que el producto editado existe
-    cy.contains('div.card', nombreProducto).should('be.visible');
-    cy.contains('div.card', nombreProducto).should('contain', '600');
-    
-    // Hacer click en eliminar
-    cy.contains('div.card', nombreProducto).within(() => {
-      cy.contains('button', 'Eliminar').click();
-    });
+    const card = new ProductCard(nombreProducto);
 
-    // Confirmar eliminación dentro del modal
+    cy.log(`**Eliminando producto: ${nombreProducto}**`);
+
+    cy.visit('http://localhost:5173/adm-store');
+    card.expectVisible();
+    card.expectPrice('600');
+
+    card.clickDelete();
+
+    // Confirmar dentro del modal
     cy.get('div[role="dialog"]').within(() => {
       cy.contains('button', 'Eliminar').click({ force: true });
     });
-    
-    // Verificar mensaje de éxito
+
     cy.contains('Producto eliminado correctamente').should('be.visible');
 
-    // Verificar que el producto fue eliminado
+    // Verificar que se eliminó
     cy.visit('http://localhost:5173/adm-store');
     cy.contains('div.card', nombreProducto).should('not.exist');
 
-    // Cerrar sesión al final
-    cy.contains('button', 'Cerrar sesión').click({ force: true });
-    cy.visit('http://localhost:5173/');
-    cy.contains('Bienvenido a Don Julio Cafe').should('be.visible');
   });
 });

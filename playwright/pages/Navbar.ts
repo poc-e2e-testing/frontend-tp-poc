@@ -32,8 +32,7 @@ export class Navbar {
   /**
    * Navega al panel de administración y verifica que la navegación fue exitosa.
    */
- // Navbar.ts
-
+  
   get adminPanel() {
     return this.page.getByRole('link', { name: /Panel Admin/i })
       .or(this.page.getByRole('button', { name: /Panel Admin/i }));
