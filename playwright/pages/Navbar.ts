@@ -34,7 +34,7 @@ export class Navbar {
   }
 
   async fillSearchArea(textToFill: string) {
-    await this.searchTextarea.click();
+    //await this.searchTextarea.click();
     await this.searchTextarea.fill(textToFill);
   }
 

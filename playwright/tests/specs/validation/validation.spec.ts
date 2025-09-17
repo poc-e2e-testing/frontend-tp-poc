@@ -1,12 +1,15 @@
 import { test, expect } from '@playwright/test';
 import productos from '../../../fixtures/product.json' assert { type: 'json' };
 import { Navbar } from '../../../pages/Navbar';
+import { StorePage } from '../../../pages/StorePage';
 
 test.describe('Pruebas de Filtros en la Tienda - Playwright', () => {
   let navbar: Navbar;
+  let storePage: StorePage;
 
   test.beforeEach(async ({ page }) => {
     navbar = new Navbar(page);
+    storePage = new StorePage(page);
     // Playwright usa `async/await` para todas sus operaciones.
     // Visitamos la página de la tienda antes de cada test.
     await page
@@ -31,44 +34,30 @@ test.describe('Pruebas de Filtros en la Tienda - Playwright', () => {
     await navbar.fillSearchArea(terminoBusqueda);
     await navbar.clickSearchButton();
 
-    // 2. Aserción de Sincronización:
-    // Esperamos a que el resultado del filtro esté completo. Sabemos que solo debe quedar 1 tarjeta.
+    // 2. Aserción: Ahora que sabemos que el filtro se aplicó, verificamos el contenido.
     await expect(
-      page
-      .locator('.card')
+      storePage.getProductCards()
+      .filter({ hasText: productoPremium })
     )
     .toHaveCount(1);
 
-    // 3. Aserción Final: Ahora que sabemos que el filtro se aplicó, verificamos el contenido.
     await expect(
-      page
-        .locator('.card', { hasText: productoPremium })
+      storePage.getProductCards()
+      .filter({ hasText: productoHacienda })
     )
-    .toBeVisible();
+    .toHaveCount(0);
 
-    await expect(
-      page
-        .locator('.card', { hasText: productoHacienda })
-    )
-    .toBeHidden();
-
-    
   });
 
   test('Debería ordenar los productos por precio de menor a mayor', async ({ page }) => {
     // 1. Acción: Seleccionamos la opción 'asc' en el dropdown.
-    await page
-      .getByTestId('sort-select')
-      .selectOption('asc');
+    await storePage.sortByPrice('asc');
 
     // Esperamos un momento a que la UI se reordene.
     await page
       .waitForTimeout(500);
 
-    // 2. Aserción: En Playwright, no necesitamos un `wait` manual.
-    // La herramienta esperará automáticamente a que la acción de ordenar termine
-    // antes de ejecutar el siguiente comando.
-
+    // 2. Aserción
     // Obtenemos todos los textos de los precios de las tarjetas visibles.
     const priceTexts = await page
       .locator('.card:visible .ms-2.text-muted')
@@ -88,9 +77,7 @@ test.describe('Pruebas de Filtros en la Tienda - Playwright', () => {
 
   test('Debería ordenar los productos por precio de mayor a menor', async ({ page }) => {
     // 1. Acción: Seleccionar la opción 'desc'.
-    await page
-      .locator('select#order')
-      .selectOption('desc');
+    await storePage.sortByPrice('desc'); //La pagina se ordena descendentemente
 
     // Esperamos un momento a que la UI se reordene.
     await page
@@ -107,6 +94,7 @@ test.describe('Pruebas de Filtros en la Tienda - Playwright', () => {
     const sortedPrices = [...prices]
       .sort((a, b) => b - a);
 
+    //Comparacion si el orden descendente de la pagina coincide con el orden descendente esperado
     expect(prices)
       .toEqual(sortedPrices);
 
@@ -116,18 +104,11 @@ test.describe('Pruebas de Filtros en la Tienda - Playwright', () => {
   test('Deberia filtrar por rango de precios usando el slider', async ({ page }) => {
     const productoPremium = 'Don Julio Premium Granos 500g';
     const productoHacienda = 'Hacienda Del Valle Molido 250g';
+    const amountToMove = 20; 
 
     // 1. Acción: Mover el manejador izquierdo del slider hacia la derecha para subir el precio minimo a 2000 o más.
-    const sliderHandle = page
-      .locator('.rc-slider-handle')
-      .first();
-
     // Opción 1: Simulación de teclado (como en el ejemplo de Cypress)
-    await sliderHandle.click();
-    for (let i = 0; i < 20; i++) {
-      await page.keyboard.press('ArrowRight');
-    }
-
+    await storePage.movePriceSliderTo(amountToMove);
 
     // Opción 2: Arrastrar y soltar (una alternativa más directa en Playwright)
     // Para arrastrar, necesitamos un "objetivo" hacia donde moverlo.
@@ -143,27 +124,18 @@ test.describe('Pruebas de Filtros en la Tienda - Playwright', () => {
         targetPosition: { x: 150, y: 0 } 
       }); */
 
-    // 2. Aserción de Sincronización: Esperamos a que el texto del rango se actualice.
-    // Usamos `expect.poll` para re-evaluar la condición hasta que se cumpla o se agote el tiempo.
-    // Esto es muy útil para esperar cambios en la UI que dependen de eventos.
+    // 2. Verificaciones: Comprobar que el producto más barato no exista y el más caro sea visible.
     await expect(
-      page
-      .locator('.card')
+      storePage.getProductCards()
+      .filter({ hasText: productoPremium })
     )
-    .toHaveCount(1, { timeout: 10000 });
+    .toHaveCount(1);
 
-    // 3. Verificaciones: Comprobar que el producto más barato no exista y el más caro sea visible.
     await expect(
-      page
-      .locator('.card', { hasText: productoHacienda })
+      storePage.getProductCards()
+      .filter({ hasText: productoHacienda })
     )
     .toBeHidden();
-    
-    await expect(
-      page
-      .locator('.card', { hasText: productoPremium })
-    )
-    .toBeVisible();
 
   })
 });

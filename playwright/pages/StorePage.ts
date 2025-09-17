@@ -14,7 +14,7 @@ export class StorePage {
     this.searchInput = page.getByTestId('search-input');
     this.searchButton = page.getByTestId('search-button');
     this.sortSelect = page.getByTestId('sort-select');
-    this.priceSliderHandleMin = page.getByTestId('price-slider').locator('.rc-slider-handle').first();
+    this.priceSliderHandleMin = page.locator('.rc-slider-handle').first();
   }
 
   // --- Elementos de la Grilla de Productos ---
@@ -37,5 +37,12 @@ export class StorePage {
     const priceLocators = this.getProductCards().getByTestId('product-price');
     const priceTexts = await priceLocators.allTextContents();
     return priceTexts.map(text => parseFloat(text.replace(/[$.]/g, '').replace(',', '.')));
+  }
+
+  async movePriceSliderTo(minValue: number) {
+    await this.priceSliderHandleMin.click();
+    for (let i = 0; i < minValue; i++) {
+      await this.page.keyboard.press('ArrowRight');
+    }
   }
 }

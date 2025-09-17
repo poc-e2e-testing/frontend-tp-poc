@@ -101,7 +101,6 @@ const Navbar = () => {
                 value={searchQuery}
                 data-testId='search-textarea'
                 onChange={handleSearchChange}
-                data-testid="search-input"
               />
               <Button variant="outline-success" data-testId='search-button' type="submit">
                 Buscar
