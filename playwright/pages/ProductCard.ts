@@ -24,4 +24,20 @@ export class ProductCard {
   async clickDelete() {
     await this.root.getByTestId('delete-button').click();
   }
-}
+
+  async confirmDelete() {
+    const dialog = this.page.getByTestId('delete-modal');
+    await expect(dialog).toBeVisible();
+
+    const closeBtn = dialog.getByTestId('close-button');
+    await expect(closeBtn).toBeVisible();
+
+    const eliminarBtn = dialog.getByTestId('confirm-delete-button');
+    await expect(eliminarBtn).toBeVisible({ timeout: 10000 });
+    await eliminarBtn.click();
+
+    await expect(
+      this.page.getByText('Producto eliminado correctamente')
+    ).toBeVisible();
+  }
+} 

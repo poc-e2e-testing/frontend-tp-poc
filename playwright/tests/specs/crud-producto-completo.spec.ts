@@ -18,21 +18,12 @@ test.describe('CRUD de productos como admin', () => {
   });
 
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:5173/', { waitUntil: 'domcontentloaded' });
+    await page.goto('/adm-store', { waitUntil: 'domcontentloaded' });
     const navbar = new Navbar(page);
     await expect(navbar.welcomeMessage).toBeVisible();
   });
 
   test('1. Crear producto', async ({ page }) => {
-    await test.step('Iniciar sesión como admin', async () => {
-
-    });
-    await test.step('Ir al panel de administración', async () => {
-      const navbar = new Navbar(page);
-      await expect(navbar.adminPanel).toBeVisible();
-      await navbar.goToAdminPanel();
-    });
-
     await test.step('Crear nuevo producto', async () => {
       const form = new ProductForm(page);
       await form.fillForm({
@@ -50,7 +41,7 @@ test.describe('CRUD de productos como admin', () => {
 
     // Verificar que el producto fue creado
     await test.step('Verificar producto creado', async () => {
-      await page.goto('http://localhost:5173/adm-store');
+      await page.goto('/adm-store');
       const productoCreado = page.locator('div.card', { hasText: nombreProducto });
       await expect(productoCreado).toBeVisible();
       await expect(productoCreado).toContainText(/500/);
@@ -59,7 +50,7 @@ test.describe('CRUD de productos como admin', () => {
 
   test('2. Editar producto', async ({ page }) => {
  await test.step('Editar producto existente', async () => {
-      await page.goto('http://localhost:5173/adm-store');
+      await page.goto('/adm-store');
       const card = new ProductCard(page, nombreProducto);
       await card.expectVisible();
       await card.clickEdit();
@@ -78,7 +69,7 @@ test.describe('CRUD de productos como admin', () => {
     });
 
     await test.step('Verificar producto editado', async () => {
-      await page.goto('http://localhost:5173/adm-store');
+      await page.goto('/adm-store');
       const card = new ProductCard(page, nombreProducto);
       await card.expectVisible();
       await card.expectPrice(/600/);
@@ -86,26 +77,18 @@ test.describe('CRUD de productos como admin', () => {
   });
 
   test('3. Eliminar producto', async ({ page }) => {
-     await test.step('Eliminar producto', async () => {
-      await page.goto('http://localhost:5173/adm-store');
+    await test.step('Eliminar producto', async () => {
+      await page.goto('/adm-store');
       const producto = new ProductCard(page, nombreProducto);
       await producto.expectVisible();
       await producto.expectPrice(/600/);
 
       await producto.clickDelete();
-      await expect(page.getByRole('button', { name: 'Close' })).toBeVisible();
-      const eliminarBtn = page
-        .getByRole('dialog')
-        .getByRole('button', { name: 'Eliminar' });
-      await eliminarBtn.waitFor({ state: 'visible' });
-      await eliminarBtn.click({ force: true });
-      await expect(
-        page.getByText('Producto eliminado correctamente')
-      ).toBeVisible();
+      await producto.confirmDelete();
     });
 
     await test.step('Verificar producto eliminado', async () => {
-      await page.goto('http://localhost:5173/adm-store');
+      await page.goto('/adm-store');
       const productoEliminado = new ProductCard(page, nombreProducto);
       await expect(productoEliminado.root).toHaveCount(0);
     });

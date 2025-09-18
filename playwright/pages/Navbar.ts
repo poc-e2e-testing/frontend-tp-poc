@@ -42,19 +42,6 @@ export class Navbar {
     await this.logoutButton.click();
   }
 
-  /**
-   * Navega al panel de administración y verifica que la navegación fue exitosa.
-   */
-  
-  get adminPanel() {
-    return this.page.getByRole('link', { name: /Panel Admin/i })
-      .or(this.page.getByRole('button', { name: /Panel Admin/i }));
-  }
-
-  async goToAdminPanel() {
-    await this.adminPanel.click();
-  }
-
   async goToLogin() {
     await this.loginLink.click();
   }

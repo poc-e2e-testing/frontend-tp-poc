@@ -47,7 +47,7 @@ describe('CRUD de producto en Don Julio Cafe', () => {
 
     // Verificar producto creado
     const card = new ProductCard(nombreProducto);
-    cy.visit('http://localhost:5173/adm-store');
+    cy.visit('/adm-store');
     card.expectVisible();
     card.expectPrice('500');
   });
@@ -58,7 +58,7 @@ describe('CRUD de producto en Don Julio Cafe', () => {
 
     cy.log(`**Editando producto: ${nombreProducto}**`);
 
-    cy.visit('http://localhost:5173/adm-store');
+    cy.visit('/adm-store');
     card.expectVisible();
     card.clickEdit();
 
@@ -75,31 +75,23 @@ describe('CRUD de producto en Don Julio Cafe', () => {
     form.submitUpdateAndExpectSuccess();
 
     // Verificar que se actualizó
-    cy.visit('http://localhost:5173/adm-store');
+    cy.visit('/adm-store');
     card.expectVisible();
     card.expectPrice('600');
   });
 
-  it('3. Eliminar producto', () => {
+ it('3. Eliminar producto', () => {
     const card = new ProductCard(nombreProducto);
 
-    cy.log(`**Eliminando producto: ${nombreProducto}**`);
-
-    cy.visit('http://localhost:5173/adm-store');
+    cy.visit('/adm-store');
     card.expectVisible();
     card.expectPrice('600');
 
     card.clickDelete();
-
-    // Confirmar dentro del modal
-    cy.get('div[role="dialog"]').within(() => {
-      cy.contains('button', 'Eliminar').click({ force: true });
-    });
-
-    cy.contains('Producto eliminado correctamente').should('be.visible');
+    card.confirmDelete(); 
 
     // Verificar que se eliminó
-    cy.visit('http://localhost:5173/adm-store');
+    cy.visit('/adm-store');
     cy.contains('div.card', nombreProducto).should('not.exist');
 
   });

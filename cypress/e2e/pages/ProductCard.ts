@@ -28,4 +28,11 @@ export class ProductCard {
       cy.contains('button', 'Eliminar').click();
     });
   }
+
+  confirmDelete() {
+    cy.get('[data-testid="delete-modal"]').within(() => {
+      cy.get('[data-testid="confirm-delete-button"]').click();
+    });
+    cy.contains('Producto eliminado correctamente').should('be.visible');
+  }
 }
