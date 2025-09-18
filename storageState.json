@@ -6,7 +6,8 @@
       "localStorage": [
         {
           "name": "token",
-          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4Y2I0MjNhNWFjZTAzODMzMTdlZjQxYiIsImVtYWlsIjoiYWRtaW5AZG9uanVsaW8uY29tIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzU4MjE2MzkyLCJleHAiOjE3NTgyMjM1OTJ9.Al8jJU2YSNvRW3t1mop6NhooZlAaV6bFLDZCYH8AJTg"
+          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4Y2I0MjNhNWFjZTAzODMzMTdlZjQxYiIsImVtYWlsIjoiYWRtaW5AZG9uanVsaW8uY29tIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzU4MTU0MzkxLCJleHAiOjE3NTgxNjE1OTF9.T86zQlCZYkJJERwhxKsOW6b4lVwohLa3At1V30iP8rI"
+
         },
         {
           "name": "clientEmail",
