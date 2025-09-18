@@ -68,10 +68,10 @@ export function StoreAdmin({ id, nombre, precio, imgUrl, onEdit, onDelete }: Sto
         </div>
 
         <div className="d-flex justify-content-between mt-3">
-          <Button variant="warning" onClick={onEdit}>
+          <Button variant="warning" onClick={onEdit} data-testid="edit-button">
             Editar
           </Button>
-          <Button variant="danger" onClick={onDelete}>
+          <Button variant="danger" onClick={onDelete} data-testid="delete-button">
             Eliminar
           </Button>
         </div>

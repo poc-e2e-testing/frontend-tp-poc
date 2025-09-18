@@ -1,5 +1,5 @@
 import { type Page, type Locator } from '@playwright/test';
-
+import { expect } from '@playwright/test';
 export class Navbar {
   private readonly page: Page;
 
@@ -42,14 +42,23 @@ export class Navbar {
     await this.logoutButton.click();
   }
 
+  /**
+   * Navega al panel de administración y verifica que la navegación fue exitosa.
+   */
+  
+  get adminPanel() {
+    return this.page.getByRole('link', { name: /Panel Admin/i })
+      .or(this.page.getByRole('button', { name: /Panel Admin/i }));
+  }
+
+  async goToAdminPanel() {
+    await this.adminPanel.click();
+  }
+
   async goToLogin() {
     await this.loginLink.click();
   }
 
-  // Se usa?
-  async goToAdminPanel() {
-    await this.adminPanelLink.click();
-  }
 
   // Se usa?
   async goToInicio() {

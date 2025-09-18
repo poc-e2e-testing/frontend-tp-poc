@@ -157,6 +157,7 @@ export function AddProductForm({
               value={formData.nombre}
               onChange={handleChange}
               required
+              data-testid="nombre-input"
             />
           </Form.Group>
 
@@ -167,6 +168,7 @@ export function AddProductForm({
               value={formData.descripcion}
               onChange={handleChange}
               required
+              data-testid="descripcionprod"
             />
           </Form.Group>
 
@@ -178,6 +180,7 @@ export function AddProductForm({
               value={formData.precio}
               onChange={handleChange}
               required
+              data-testid="precio-input"
             />
           </Form.Group>
 
@@ -189,6 +192,7 @@ export function AddProductForm({
               value={formData.stock}
               onChange={handleChange}
               required
+              data-testid="stock-input"
             />
           </Form.Group>
 
@@ -198,6 +202,7 @@ export function AddProductForm({
               value={formData.productBrand}
               onChange={handleChange}
               required
+              data-testid="productBrand-input"
             >
               <option value="">Seleccione una marca</option>
               {brands.map((brand) => (
@@ -214,6 +219,7 @@ export function AddProductForm({
               value={formData.productClass}
               onChange={handleChange}
               required
+              data-testid="productClass-input"
             >
               <option value="">Seleccione una clase</option>
               {classes.map((cl) => (
@@ -234,12 +240,17 @@ export function AddProductForm({
                 thumbnail
                 fluid
                 className="mt-3"
+                data-testid="vista-previa"
               />
             )}
           </Form.Group>
 
-          <Button variant="primary" type="submit" className="w-100">
-            {selectedProduct ? "Actualizar Producto" : "Agregar Producto"}
+          <Button
+            variant="primary"
+            type="submit"
+            className="w-100"
+            data-testid={selectedProduct ? "update-button" : "add-button"}
+          >{selectedProduct ? "Actualizar Producto" : "Agregar Producto"}
           </Button>
         </Form>
         <Container className="mt-3">
