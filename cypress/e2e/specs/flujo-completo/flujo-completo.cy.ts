@@ -1,3 +1,7 @@
+/**
+ * Test E2E unificado para el flujo completo de la app Don Julio Cafe.
+ * Valida login, navegación, filtros, CRUD de producto y logout.
+ */
 import { navbar } from '../../pages/Navbar';
 import { storePage } from '../../pages/StorePage';
 import { loginForm } from '../../pages/LoginForm';
@@ -7,15 +11,25 @@ const filePath = 'playwright/fixtures/cafe.jpg';
 const nombreProducto = `Café Dorado ${Math.floor(Math.random() * 100000)}`;
 
 before(() => {
-  cy.fixture('usuarios.json').then((data) => { usuarios = data; });
-  cy.fixture('product.json').then((data) => { products = data; });
+  cy.fixture('usuarios.json').then((data) => {
+    usuarios = data;
+  });
+  cy.fixture('product.json').then((data) => {
+    products = data;
+  });
 });
 
 describe('Flujo E2E Unificado - Don Julio Cafe', () => {
+  /**
+   * Valida el flujo completo: login, navegación, filtros, CRUD y logout.
+   */
   it('Login, navegación, filtros, CRUD y logout', () => {
     // --- LOGIN UI  ---
     cy.visit('/login');
-    loginForm.login(usuarios.validos.admin.email, usuarios.validos.admin.password);
+    loginForm.login(
+      usuarios.validos.admin.email,
+      usuarios.validos.admin.password
+    );
     cy.url().should('include', '/store');
 
     // --- NAVEGACIÓN ---
@@ -33,7 +47,7 @@ describe('Flujo E2E Unificado - Don Julio Cafe', () => {
     // --- VALIDACIÓN DE FILTROS EN TIENDA ---
     cy.visit('/store');
     storePage.searchFor(products.premium.nombre);
-    cy.wait(500); 
+    cy.wait(500);
     storePage.getProductCards().should('contain', products.premium.nombre);
     storePage.sortByPrice('asc');
     storePage.getProductPrices().then((prices) => {

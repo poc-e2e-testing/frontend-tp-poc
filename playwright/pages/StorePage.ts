@@ -1,5 +1,9 @@
-import { type Page, type Locator, expect } from '@playwright/test';
+import { type Page, type Locator } from '@playwright/test';
 
+/**
+ * Page Object Model para la página de la tienda.
+ * Encapsula los elementos y acciones del usuario para filtrar y ver productos.
+ */
 export class StorePage {
   private readonly page: Page;
 
@@ -8,8 +12,12 @@ export class StorePage {
   public readonly searchButton: Locator;
   public readonly sortSelect: Locator;
   public readonly priceSliderHandleMin: Locator;
-  public readonly priceSliderContainer:Locator;
+  public readonly priceSliderContainer: Locator;
 
+  /**
+   * Inicializa la página de la tienda.
+   * @param {Page} page - Instancia de la página de Playwright.
+   */
   constructor(page: Page) {
     this.page = page;
     this.searchInput = page.getByTestId('search-textarea');
@@ -19,28 +27,47 @@ export class StorePage {
     this.priceSliderContainer = page.locator('.rc-slider').first(); // O un test-id si lo tienes
   }
 
-  // --- Elementos de la Grilla de Productos ---
+  /**
+   * Obtiene todas las tarjetas de productos visibles.
+   * @returns {Locator} Un localizador que apunta a las tarjetas de productos.
+   */
   getProductCards() {
     return this.page.getByTestId('product-card');
   }
 
-  // --- Acciones de Usuario ---
+  /**
+   * Rellena el campo de búsqueda y hace clic en el botón de buscar.
+   * @param {string} term - Texto a buscar.
+   */
   async searchFor(term: string) {
     await this.searchInput.fill(term);
     await this.searchButton.click();
   }
 
+  /**
+   * Selecciona una opción del desplegable para ordenar los productos.
+   * @param {'asc' | 'desc' | ''} direction - Dirección de ordenamiento ('asc', 'desc', o '').
+   */
   async sortByPrice(direction: 'asc' | 'desc' | '') {
     await this.sortSelect.selectOption(direction);
   }
 
-  // --- Helpers para Aserciones ---
+  /**
+   * Extrae y devuelve los precios de todos los productos en la página.
+   * @returns {Promise<number[]>} - Un array con los precios en formato numérico.
+   */
   async getProductPrices(): Promise<number[]> {
     const priceLocators = this.getProductCards().getByTestId('product-price');
     const priceTexts = await priceLocators.allTextContents();
-    return priceTexts.map(text => parseFloat(text.replace(/[$.]/g, '').replace(',', '.')));
+    return priceTexts.map((text) =>
+      parseFloat(text.replace(/[$.]/g, '').replace(',', '.'))
+    );
   }
 
+  /**
+   * Mueve el control deslizante de precio mínimo usando el teclado.
+   * @param {number} minValue - El número de veces que se presionará la flecha derecha.
+   */
   async movePriceSliderTo(minValue: number) {
     await this.priceSliderHandleMin.click();
     for (let i = 0; i < minValue; i++) {
@@ -48,30 +75,13 @@ export class StorePage {
     }
   }
 
-
-    /**
-   * Mueve el manejador de precio mínimo a una posición horizontal específica usando el mouse.
-   * Esta es la forma preferida para simular la interacción del usuario con un slider.
-   *
-   * @param {number} xPosition La coordenada X en píxeles (relativa al contenedor del slider) a la que se arrastrará el manejador.
+  /**
+   * Mueve el manejador de precio mínimo arrastrándolo con el ratón.
+   * @param {number} xPosition - Coordenada X (píxeles) a la que se moverá el manejador.
    */
   async movePriceSliderByMouse(xPosition: number): Promise<void> {
-    // Buena práctica: Ejecutar la acción que causa una navegación o llamada de red
-    // y la espera de esa respuesta en paralelo. Esto previene condiciones de carrera
-    // y hace la prueba mucho más robusta y rápida.
-    await Promise.all([
-      // 1. Espera a que la API de productos responda, indicando que el filtro se aplicó.
-      //    Usa un patrón de URL flexible para que no se rompa con cambios menores.
-      this.page.waitForResponse(response =>
-        response.url().includes('/api/products') && response.status() === 200
-      ),
-
-      // 2. Realiza la acción de arrastrar y soltar.
-      //    'dragTo' es la API de alto nivel de Playwright que simula de forma fiable
-      //    toda la secuencia: mousedown, mousemove y mouseup.
-      this.priceSliderHandleMin.dragTo(this.priceSliderContainer, {
-        targetPosition: { x: xPosition, y: 0 } // 'y: 0' lo mantiene en la línea horizontal.
-      })
-    ]);
+    await this.priceSliderHandleMin.dragTo(this.priceSliderContainer, {
+      targetPosition: { x: xPosition, y: 0 },
+    });
   }
 }

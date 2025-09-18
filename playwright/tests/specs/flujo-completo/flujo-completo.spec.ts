@@ -2,6 +2,8 @@ import { test, expect } from '@playwright/test';
 import { LoginForm } from '../../../pages/LoginForm';
 import { getNavbar } from '../../../pages/Navbar';
 import { StorePage } from '../../../pages/StorePage';
+import { ProductForm } from '../../../pages/ProductForm';
+import { ProductCard } from '../../../pages/ProductCard';
 import usuarios from '../../../fixtures/usuarios.json' with { type: 'json' };
 import products from '../../../fixtures/product.json' with { type: 'json' };
 const filePath = 'playwright/fixtures/cafe.jpg';
@@ -48,69 +50,81 @@ test('Flujo E2E completo Don Julio Cafe', async ({ page }) => {
   for (let i = 1; i < ascPrices.length; i++) {
     expect(ascPrices[i]).toBeGreaterThanOrEqual(ascPrices[i - 1]);
   }
-  await storePage.movePriceSliderTo(2000);
+  await storePage.movePriceSliderTo(20);
   await page.waitForTimeout(500);
   await expect(storePage.getProductCards().filter({ hasText: products.hacienda.nombre })).toHaveCount(0);
-
-
 
   // --- CRUD DE PRODUCTO ---
     // Crear producto
     await navbar.adminPanelLink.click();
-    await page.getByRole('textbox', { name: 'Nombre' }).fill(nombreProducto);
-    await page.getByRole('textbox', { name: 'Descripción' }).fill('Café tostado premium');
-    await page.getByPlaceholder('Precio').fill('500');
-    await page.getByPlaceholder('Stock').fill('10');
-    await page.locator('select[name="productBrand"]').selectOption({ label: 'Don Julio Premium' });
-    await page.locator('select[name="productClass"]').selectOption({ label: 'Granos' });
-    await page.locator('input[type="file"]').setInputFiles(filePath);
-    await expect(page.getByRole('img', { name: 'Vista previa' })).toBeVisible();
-    await page.getByRole('button', { name: 'Agregar Producto' }).click();
-    await expect(page.getByText('Producto agregado correctamente')).toBeVisible();
+    await expect(navbar.welcomeMessage).toBeVisible();
+    const form = new ProductForm(page);
+    await form.fillForm({
+      nombre: nombreProducto,
+      descripcion: 'Café tostado premium',
+      precio: '500',
+      stock: '10',
+      brand: 'Don Julio Premium',
+      productClass: 'Granos',
+      filePath,
+    });
+    await form.expectPreviewVisible();
+    await form.submitNewAndExpectSuccess();
 
     // Verificar que el producto fue creado
-    await page.goto('/adm-store');
+    await navbar.adminPanelLink.click();
+    await expect(navbar.welcomeMessage).toBeVisible();
+
     const productoCreado = page.locator('div.card', { hasText: nombreProducto });
     await expect(productoCreado).toBeVisible();
     await expect(productoCreado).toContainText(/500/);
 
     // Editar producto
-    await page.goto('/adm-store');
-    const productoCard = page.locator('div.card', { hasText: nombreProducto });
-    await expect(productoCard).toBeVisible();
-    await productoCard.getByRole('button', { name: 'Editar' }).click();
+    await navbar.adminPanelLink.click();
+    await expect(navbar.welcomeMessage).toBeVisible();
+
+    const card = new ProductCard(page, nombreProducto);
+    await card.expectVisible();
+    await card.clickEdit();
     await expect(page.getByText('Producto cargado para editar')).toBeVisible();
-    await page.getByPlaceholder('Precio').fill('600');
-    await page.locator('select[name="productBrand"]').selectOption({ label: 'Don Julio Premium' });
-    await page.locator('select[name="productClass"]').selectOption({ label: 'Granos' });
-    await page.locator('input[type="file"]').setInputFiles(filePath);
-    await expect(page.getByRole('img', { name: 'Vista previa' })).toBeVisible();
-    await page.getByRole('button', { name: 'Actualizar Producto' }).click();
-    await expect(page.getByText('Producto actualizado correctamente')).toBeVisible();
 
-    // Verificar producto editado
-    await page.goto('/adm-store');
-    const productoEditado = page.locator('div.card', { hasText: nombreProducto });
-    await expect(productoEditado).toBeVisible();
-    await expect(productoEditado).toContainText(/600/);
+    const formUpd = new ProductForm(page);
+      await formUpd.fillForm({
+        precio: '600',
+        brand: 'Don Julio Premium',
+        productClass: 'Granos',
+        filePath,
+      });
+    await formUpd.expectPreviewVisible();
+    await formUpd.submitUpdateAndExpectSuccess();
+      
+    await navbar.adminPanelLink.click();
+    await expect(navbar.welcomeMessage).toBeVisible();
 
-    // Eliminar producto
-    await page.goto('/adm-store');
-    const producto = page.locator('div.card', { hasText: nombreProducto });
-    await expect(producto).toBeVisible();
-    await expect(producto).toContainText(/600/);
-    await producto.getByRole('button', { name: 'Eliminar' }).click();
-    const eliminarBtn = page.getByRole('dialog').getByRole('button', { name: 'Eliminar' });
-    await eliminarBtn.waitFor({ state: 'visible' });
-    await eliminarBtn.click({ force: true });
+    //Verificar que el producto fue editado
+    const cardCheck = new ProductCard(page, nombreProducto);
+    await cardCheck.expectVisible();
+    await cardCheck.expectPrice(/600/);
 
+    //Eliminar producto
+    await navbar.adminPanelLink.click();
+    await expect(navbar.welcomeMessage).toBeVisible();
+    const productoEliminar = new ProductCard(page, nombreProducto);
+    await productoEliminar.expectVisible();
+    await productoEliminar.expectPrice(/600/);
+    
+    await productoEliminar.clickDelete(); 
+    await productoEliminar.confirmDelete();
+    
     // Verificar producto eliminado
-    await page.goto('/adm-store');
-    const productoEliminado = page.locator('div.card', { hasText: nombreProducto });
-    await expect(productoEliminado).toHaveCount(0);
+    //await navbar.adminPanelLink.click();
+    //await expect(navbar.welcomeMessage).toBeVisible();
+    page.reload()
+    
+    const productoEliminado = new ProductCard(page, nombreProducto);
+    await expect(productoEliminado.root).toHaveCount(0);
 
   // --- LOGOUT ---
-  await page.goto('/adm-store');
   await navbar.logoutButton.waitFor({ state: 'visible' });
   await navbar.clickLogout();
   await expect(page).toHaveURL(/.*login/);

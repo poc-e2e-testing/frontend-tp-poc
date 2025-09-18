@@ -1,4 +1,4 @@
-# Análisis de Fallas - Suite de Testing E2E
+# Análisis de Fallas - Suite de Testing E2E <small>[⬅️ Volver al README Principal](../README.md)</small>
 
 ## Resultados de Ejecución Multi-Browser
 

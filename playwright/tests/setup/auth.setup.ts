@@ -1,10 +1,13 @@
 import { test as setup } from '@playwright/test';
 import { AuthUtils } from '../../utils/AuthUtils';
-// Se añade 'assert { type: 'json' }' para cumplir con el estándar de módulos ES.
 import usuarios from '../../fixtures/usuarios.json' assert { type: 'json' };
 
 const adminFile = 'storageState.json';
 
+/**
+ * Setup: Autentica como administrador y guarda el estado de sesión.
+ * @param {{ page: import('@playwright/test').Page }} param0
+ */
 setup('autenticar como administrador', async ({ page }) => {
   const authUtils = new AuthUtils(page);
 
