@@ -123,21 +123,10 @@ test.describe('Pruebas de Filtros en la Tienda - Playwright', () => {
 
     // 1. Acción: Mover el manejador izquierdo del slider hacia la derecha para subir el precio minimo a 2000 o más.
     // Opción 1: Simulación de teclado (como en el ejemplo de Cypress)
-    await storePage.movePriceSliderTo(amountToMove);
+    /* await storePage.movePriceSliderTo(amountToMove); */
 
-    // Opción 2: Arrastrar y soltar (una alternativa más directa en Playwright)
-    // Para arrastrar, necesitamos un "objetivo" hacia donde moverlo.
-    // Usualmente, el propio riel del slider funciona bien como objetivo.
-    /*   const sliderTrack = page.locator('.rc-slider'); 
-    
-      // La acción clave: arrastra el manejador (handle) hacia el riel (track).
-      // Playwright calculará las coordenadas.
-      await sliderHandle.dragTo(sliderTrack, {
-        // Le indicamos que el punto de destino en el riel debe ser
-        // más a la derecha del punto de origen del manejador.
-        // Prueba ajustando `x`. Un valor más alto lo moverá más lejos.
-        targetPosition: { x: 150, y: 0 } 
-      }); */
+
+    await storePage.movePriceSliderByMouse(10)
 
     // 2. Verificaciones: Comprobar que el producto más barato no exista y el más caro sea visible.
     await expect(
