@@ -1,5 +1,5 @@
 import { type Page, type Locator } from '@playwright/test';
-
+import { expect } from '@playwright/test';
 export class Navbar {
   private readonly page: Page;
 
@@ -46,10 +46,6 @@ export class Navbar {
     await this.loginLink.click();
   }
 
-  // Se usa?
-  async goToAdminPanel() {
-    await this.adminPanelLink.click();
-  }
 
   // Se usa?
   async goToInicio() {

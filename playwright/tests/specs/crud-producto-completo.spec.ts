@@ -1,90 +1,96 @@
 import { test, expect } from '@playwright/test';
-import usuarios from '../../fixtures/usuarios.json' assert { type: 'json' };
-const filePath = 'playwright/fixtures/cafe.jpg';
+import path from 'path';
+import { Navbar } from '../../pages/Navbar';
+import { ProductForm } from '../../pages/ProductForm';
+import { ProductCard } from '../../pages/ProductCard';
 
-const nombreProducto = `Café Dorado ${Math.floor(Math.random() * 100000)}`;
-const admin = usuarios.validos.admin;
+const filePath = path.resolve(process.cwd(), 'playwright/fixtures/cafe.jpg');
 
-test('test', async ({ page }) => {
-  //Ir a la pagina principal
-  test.setTimeout(60000);
-  await page.goto('http://localhost:5173/', { waitUntil: 'domcontentloaded' });
-  await page.waitForLoadState('networkidle');
-  await expect(page.getByText('Bienvenido a Don Julio Cafe')).toBeVisible();
+//Te hace un test cuando termina el otro
+test.describe.configure({ mode: 'serial' });
 
-  //Inicio de sesion
-  await page.getByRole('link', { name: 'Iniciar sesión' }).click();
-  await expect(
-    page.getByRole('heading', { name: 'Iniciar Sesión' })
-  ).toBeVisible();
-  await page.getByRole('textbox', { name: 'Email' }).click();
-  await page.getByRole('textbox', { name: 'Email' }).fill(admin.email);
-  await page.getByRole('textbox', { name: 'Contraseña' }).click();
-  await page.getByRole('textbox', { name: 'Contraseña' }).fill(admin.password);
-  await page.getByRole('button', { name: 'Entrar' }).click();
-  await expect(page.getByRole('link', { name: 'Panel Admin' })).toBeVisible();
-  await page.getByRole('link', { name: 'Panel Admin' }).click();
-  await expect(page.getByRole('heading', { name: 'Store' })).toBeVisible();
+test.describe('CRUD de productos como admin', () => {
+  let nombreProducto: string;
 
-  //Creacion del producto
-  await page.getByRole('textbox', { name: 'Nombre' }).click();
-  await page.getByRole('textbox', { name: 'Nombre' }).fill(nombreProducto);
-  await page
-    .getByRole('textbox', { name: 'Descripción' })
-    .fill('Café tostado premium');
-  await page.getByPlaceholder('Precio').fill('500');
-  await page.getByPlaceholder('Stock').fill('10');
-  await page
-    .locator('select[name="productBrand"]')
-    .selectOption({ label: 'Don Julio Premium' });
-  await page
-    .locator('select[name="productClass"]')
-    .selectOption({ label: 'Granos' });
-  await page.locator('input[type="file"]').setInputFiles(filePath);
-  await expect(page.getByRole('img', { name: 'Vista previa' })).toBeVisible();
-  await page.getByRole('button', { name: 'Agregar Producto' }).click();
-  await expect(page.getByText('Producto agregado correctamente')).toBeVisible();
+  test.beforeAll(() => {
+    // Generar nombre 
+    nombreProducto = `Café Dorado ${Math.floor(Math.random() * 100000)}`;
+  });
 
-  //Edicion del producto
-  await page.goto('http://localhost:5173/adm-store');
-  const productoCard = page.locator('div.card', { hasText: nombreProducto });
-  await productoCard.getByRole('button', { name: 'Editar' }).click();
-  await expect(page.getByText('Producto cargado para editar')).toBeVisible();
-  await page.getByPlaceholder('Precio').fill('600');
-  await page
-    .locator('select[name="productBrand"]')
-    .selectOption({ label: 'Don Julio Premium' });
-  await page
-    .locator('select[name="productClass"]')
-    .selectOption({ label: 'Granos' });
-  await page.locator('input[type="file"]').setInputFiles(filePath);
-  await expect(page.getByRole('img', { name: 'Vista previa' })).toBeVisible();
-  await page.getByRole('button', { name: 'Actualizar Producto' }).click();
-  await expect(
-    page.getByText('Producto actualizado correctamente')
-  ).toBeVisible();
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/adm-store', { waitUntil: 'domcontentloaded' });
+    const navbar = new Navbar(page);
+    await expect(navbar.welcomeMessage).toBeVisible();
+  });
 
-  //Eliminacion del producto
-  await page.goto('http://localhost:5173/adm-store');
-  const productoEditado = page.locator('div.card', { hasText: nombreProducto });
-  await expect(productoEditado).toBeVisible();
-  await expect(productoEditado).toContainText(/600/);
+  test('1. Crear producto', async ({ page }) => {
+    await test.step('Crear nuevo producto', async () => {
+      const form = new ProductForm(page);
+      await form.fillForm({
+        nombre: nombreProducto,
+        descripcion: 'Café tostado premium',
+        precio: '500',
+        stock: '10',
+        brand: 'Don Julio Premium',
+        productClass: 'Granos',
+        filePath,
+      });
+      await form.expectPreviewVisible();
+      await form.submitNewAndExpectSuccess();
+    });
 
-  await productoEditado.getByRole('button', { name: 'Eliminar' }).click();
-  await expect(page.getByRole('button', { name: 'Close' })).toBeVisible();
-  const eliminarBtn = page
-    .getByRole('dialog')
-    .getByRole('button', { name: 'Eliminar' });
-  await eliminarBtn.waitFor({ state: 'visible' });
-  await eliminarBtn.click({ force: true });
-  await expect(
-    page.getByText('Producto eliminado correctamente')
-  ).toBeVisible();
+    // Verificar que el producto fue creado
+    await test.step('Verificar producto creado', async () => {
+      await page.goto('/adm-store');
+      const productoCreado = page.locator('div.card', { hasText: nombreProducto });
+      await expect(productoCreado).toBeVisible();
+      await expect(productoCreado).toContainText(/500/);
+    });
+  });
 
-  //Cerrar sesion
-  await page.goto('http://localhost:5173/adm-store');
-  await page
-    .getByRole('button', { name: 'Cerrar sesión' })
-    .click({ force: true });
-  await page.goto('http://localhost:5173/');
+  test('2. Editar producto', async ({ page }) => {
+ await test.step('Editar producto existente', async () => {
+      await page.goto('/adm-store');
+      const card = new ProductCard(page, nombreProducto);
+      await card.expectVisible();
+      await card.clickEdit();
+
+      await expect(page.getByText('Producto cargado para editar')).toBeVisible();
+
+      const form = new ProductForm(page);
+      await form.fillForm({
+        precio: '600',
+        brand: 'Don Julio Premium',
+        productClass: 'Granos',
+        filePath,
+      });
+      await form.expectPreviewVisible();
+      await form.submitUpdateAndExpectSuccess();
+    });
+
+    await test.step('Verificar producto editado', async () => {
+      await page.goto('/adm-store');
+      const card = new ProductCard(page, nombreProducto);
+      await card.expectVisible();
+      await card.expectPrice(/600/);
+    });
+  });
+
+  test('3. Eliminar producto', async ({ page }) => {
+    await test.step('Eliminar producto', async () => {
+      await page.goto('/adm-store');
+      const producto = new ProductCard(page, nombreProducto);
+      await producto.expectVisible();
+      await producto.expectPrice(/600/);
+
+      await producto.clickDelete();
+      await producto.confirmDelete();
+    });
+
+    await test.step('Verificar producto eliminado', async () => {
+      await page.goto('/adm-store');
+      const productoEliminado = new ProductCard(page, nombreProducto);
+      await expect(productoEliminado.root).toHaveCount(0);
+    });
+  });
 });

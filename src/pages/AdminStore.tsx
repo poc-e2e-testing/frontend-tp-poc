@@ -114,7 +114,7 @@ export function StoreAdm() {
         />
       </Container>
 
-      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered data-testid="delete-modal">
         <Modal.Header closeButton>
           <Modal.Title>Confirmar Eliminación</Modal.Title>
         </Modal.Header>
@@ -122,10 +122,10 @@ export function StoreAdm() {
           ¿Estás seguro de que quieres eliminar <strong>{itemToDelete?.nombre || ''}</strong>?
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)} data-testid="close-button">
             Cancelar
           </Button>
-          <Button variant="danger" onClick={handleDelete}>
+          <Button variant="danger" onClick={handleDelete} data-testid="confirm-delete-button">
             Eliminar
           </Button>
         </Modal.Footer>
