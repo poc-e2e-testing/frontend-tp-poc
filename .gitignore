@@ -36,6 +36,9 @@ test-results/
 playwright-report/
 playwright/.cache/
 
+# Estado de Playwright
+storageState.json
+
 # Coverage reports
 coverage/
 .nyc_output/
