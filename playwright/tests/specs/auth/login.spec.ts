@@ -7,6 +7,9 @@ import usuarios from '../../../fixtures/usuarios.json' with { type: 'json' };
  */
 test.describe('Flujo de Login - Playwright', () => {
 
+  //Eliminamos el estado de almacenamiento antes de cada prueba para asegurar un entorno limpio
+  test.use({ storageState: { cookies: [], origins: [] } });
+
   /**
    * Test: Login exitoso con usuario válido.
    * @param {{ page: import('@playwright/test').Page }} param0
