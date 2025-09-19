@@ -1,5 +1,9 @@
 import { loginForm } from '../../pages/LoginForm';
 
+/**
+ * Suite de tests de autenticación: login.
+ * Valida el flujo de inicio de sesión y manejo de errores.
+ */
 describe('Login - Cypress', () => {
   let usuarios: any;
 

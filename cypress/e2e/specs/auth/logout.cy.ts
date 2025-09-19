@@ -1,15 +1,22 @@
 import { navbar } from '../../pages/Navbar';
 
+/**
+ * Suite de tests de autenticación: logout.
+ * Valida el flujo de cierre de sesión y limpieza de estado.
+ */
 describe('Flujo de Logout', () => {
   let usuarios: any;
 
   before(() => {
-    // Cargar datos de prueba una sola vez para toda la suite
+    // Carga datos de prueba una sola vez para toda la suite
     cy.fixture('usuarios.json').then((data) => {
       usuarios = data;
     });
   });
 
+  /**
+   * Cierre de sesión desde la interfaz de usuario.
+   */
   context('Cierre de sesión desde la interfaz de usuario', () => {
     beforeEach(() => {
       // Prepara el estado antes de cada test: inicia sesión vía API.
@@ -21,6 +28,9 @@ describe('Flujo de Logout', () => {
       cy.visit('/store');
     });
 
+    /**
+     * Debe limpiar completamente el estado de la sesión al hacer logout desde la UI.
+     */
     it('debería limpiar completamente el estado de la sesión al hacer logout desde la UI', () => {
       // 1. Verificación inicial: Asegurarse de que el usuario está logueado.
       navbar.logoutButton.should('be.visible');
@@ -44,6 +54,9 @@ describe('Flujo de Logout', () => {
       });
     });
 
+    /**
+     * Debe redirigir al login y actualizar la UI para un usuario deslogueado.
+     */
     it('debería redirigir al login y actualizar la UI para un usuario deslogueado', () => {
       // Acción
       navbar.clickLogout();
@@ -55,7 +68,13 @@ describe('Flujo de Logout', () => {
     });
   });
 
+  /**
+   * Gestión del estado de la sesión.
+   */
   context('Gestión del estado de la sesión', () => {
+    /**
+     * El comando cy.logout() programático debe limpiar todo el estado de la sesión.
+     */
     it('el comando cy.logout() programático debe limpiar todo el estado de la sesión', () => {
       // 1. Setup: Iniciar sesión y visitar una página.
       cy.loginByApi(
@@ -79,6 +98,9 @@ describe('Flujo de Logout', () => {
       });
     });
 
+    /**
+     * Debe desloguear al usuario si el localStorage se limpia externamente.
+     */
     it('debería desloguear al usuario si el localStorage se limpia externamente', () => {
       // 1. Setup: Iniciar sesión y visitar una página.
       cy.loginByApi(

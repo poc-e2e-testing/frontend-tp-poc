@@ -2,8 +2,18 @@ import { test, expect } from '@playwright/test';
 import { LoginForm } from '../../../pages/LoginForm';
 import usuarios from '../../../fixtures/usuarios.json' with { type: 'json' };
 
+/**
+ * Tests de autenticación: flujo de login exitoso y fallido.
+ */
 test.describe('Flujo de Login - Playwright', () => {
 
+  //Eliminamos el estado de almacenamiento antes de cada prueba para asegurar un entorno limpio
+  test.use({ storageState: { cookies: [], origins: [] } });
+
+  /**
+   * Test: Login exitoso con usuario válido.
+   * @param {{ page: import('@playwright/test').Page }} param0
+   */
   test('Login exitoso con usuario válido', async ({ page }) => {
     const loginForm = new LoginForm(page);
 
@@ -24,6 +34,10 @@ test.describe('Flujo de Login - Playwright', () => {
     expect(token).toBeTruthy();
   });
 
+  /**
+   * Test: Login falla con email incorrecto.
+   * @param {{ page: import('@playwright/test').Page }} param0
+   */
   test('Login falla con email incorrecto', async ({ page }) => {
     const loginForm = new LoginForm(page);
 

@@ -1,18 +1,22 @@
 import { test, expect } from '@playwright/test';
 
+/**
+ * Verifica que el título de la página contenga "Playwright".
+ * @param {{ page: import('@playwright/test').Page }} param0
+ */
 test('has title', async ({ page }) => {
   await page.goto('https://playwright.dev/');
-
-  // Expect a title "to contain" a substring.
   await expect(page).toHaveTitle(/Playwright/);
 });
 
+/**
+ * Test: Navega con el enlace Get started y verifica el encabezado Installation.
+ * @param {{ page: import('@playwright/test').Page }} param0
+ */
 test('get started link', async ({ page }) => {
   await page.goto('https://playwright.dev/');
-
-  // Click the get started link.
   await page.getByRole('link', { name: 'Get started' }).click();
-
-  // Expects page to have a heading with the name of Installation.
-  await expect(page.getByRole('heading', { name: 'Installation' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'Installation' })
+  ).toBeVisible();
 });

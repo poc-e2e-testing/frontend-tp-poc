@@ -1,5 +1,7 @@
-/// <reference types="cypress" />
-
+/**
+ * Test E2E para el CRUD de producto en Don Julio Cafe.
+ * Valida la creación, edición y eliminación de productos.
+ */
 import { ProductForm } from '../../pages/ProductForm';
 import { ProductCard } from '../../pages/ProductCard';
 
@@ -13,20 +15,20 @@ describe('CRUD de producto en Don Julio Cafe', () => {
     nombreProducto = `Café Dorado ${Math.floor(Math.random() * 100000)}`;
 
     cy.fixture('usuarios.json').then((data) => {
-      admin= data;
+      admin = data;
     });
   });
 
   beforeEach(() => {
     // Prepara el estado antes de cada test: inicia sesión vía API.
     // cy.session() optimiza esto para que sea casi instantáneo después de la primera vez.
-    cy.loginByApi(
-      admin.validos.admin.email,
-      admin.validos.admin.password
-    );
+    cy.loginByApi(admin.validos.admin.email, admin.validos.admin.password);
     cy.visit('/adm-store');
   });
 
+  /**
+   * Debe crear un producto correctamente.
+   */
   it('1. Crear producto', () => {
     const form = new ProductForm();
 
@@ -52,6 +54,9 @@ describe('CRUD de producto en Don Julio Cafe', () => {
     card.expectPrice('500');
   });
 
+  /**
+   * Debe editar el producto creado.
+   */
   it('2. Editar producto', () => {
     const form = new ProductForm();
     const card = new ProductCard(nombreProducto);
@@ -66,7 +71,7 @@ describe('CRUD de producto en Don Julio Cafe', () => {
 
     form.fillForm({
       precio: '600',
-       brand: 'Don Julio Premium',
+      brand: 'Don Julio Premium',
       productClass: 'Granos',
       filePath,
     });
@@ -80,7 +85,10 @@ describe('CRUD de producto en Don Julio Cafe', () => {
     card.expectPrice('600');
   });
 
- it('3. Eliminar producto', () => {
+  /**
+   * Debe eliminar el producto creado.
+   */
+  it('3. Eliminar producto', () => {
     const card = new ProductCard(nombreProducto);
 
     cy.visit('/adm-store');
@@ -88,11 +96,10 @@ describe('CRUD de producto en Don Julio Cafe', () => {
     card.expectPrice('600');
 
     card.clickDelete();
-    card.confirmDelete(); 
+    card.confirmDelete();
 
     // Verificar que se eliminó
     cy.visit('/adm-store');
     cy.contains('div.card', nombreProducto).should('not.exist');
-
   });
 });

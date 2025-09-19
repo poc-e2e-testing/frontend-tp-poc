@@ -15,7 +15,7 @@ export default defineConfig({
     baseURL: 'http://localhost:5173', // URL base de tu frontend
     trace: 'on-first-retry', // Traza en fallos para debugging
     screenshot: 'only-on-failure', // Screenshot solo si falla
-    video: 'retain-on-failure', // Video solo si falla
+    video: 'on', // Video solo si falla
     headless: true, // Modo headless
   },
 

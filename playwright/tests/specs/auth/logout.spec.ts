@@ -3,6 +3,9 @@ import { AuthUtils } from '../../../utils/AuthUtils';
 import { Navbar } from '../../../pages/Navbar';
 import usuarios from '../../../fixtures/usuarios.json' assert { type: 'json' };
 
+/**
+ * Tests de logout: cierre de sesión desde la UI y gestión del estado de sesión.
+ */
 test.describe('Flujo de Logout', () => {
   let authUtils: AuthUtils;
   let navbar: Navbar;
@@ -15,9 +18,11 @@ test.describe('Flujo de Logout', () => {
   test.describe('Cierre de sesión desde la interfaz de usuario', () => {
     test.use({ storageState: 'storageState.json' });
 
-    test('debería limpiar completamente el estado de la sesión al hacer logout desde la UI', async ({
-      page,
-    }) => {
+    /**
+     * Test: Logout desde la UI limpia el estado de sesión.
+     * @param {{ page: import('@playwright/test').Page }} param0
+     */
+    test('debería limpiar completamente el estado de la sesión al hacer logout desde la UI', async ({ page }) => {
       await page.goto('/store');
       await expect(navbar.logoutButton).toBeVisible();
 
@@ -36,9 +41,11 @@ test.describe('Flujo de Logout', () => {
       expect(clientEmail, 'El clientEmail debe ser nulo').toBeNull();
     });
 
-    test('debería redirigir al login y actualizar la UI para un usuario deslogueado', async ({
-      page,
-    }) => {
+    /**
+     * Test: Logout redirige al login y actualiza la UI.
+     * @param {{ page: import('@playwright/test').Page }} param0
+     */
+    test('debería redirigir al login y actualizar la UI para un usuario deslogueado', async ({ page }) => {
       await page.goto('/store');
       await navbar.clickLogout();
 
@@ -49,9 +56,11 @@ test.describe('Flujo de Logout', () => {
   });
 
   test.describe('Gestión del estado de la sesión', () => {
-    test('el logout programático debe limpiar todo el estado de la sesión', async ({
-      page,
-    }) => {
+    /**
+     * Test: Logout programático limpia el estado de sesión.
+     * @param {{ page: import('@playwright/test').Page }} param0
+     */
+    test('el logout programático debe limpiar todo el estado de la sesión', async ({ page }) => {
       await authUtils.loginByApi(
         usuarios.validos.client.email,
         usuarios.validos.client.password
@@ -63,9 +72,11 @@ test.describe('Flujo de Logout', () => {
       await authUtils.verifyLoggedOut();
     });
 
-    test('debería desloguear al usuario si el localStorage se limpia externamente', async ({
-      page,
-    }) => {
+    /**
+     * Test: Logout si el localStorage se limpia externamente.
+     * @param {{ page: import('@playwright/test').Page }} param0
+     */
+    test('debería desloguear al usuario si el localStorage se limpia externamente', async ({ page }) => {
       await authUtils.loginByApi(
         usuarios.validos.client.email,
         usuarios.validos.client.password

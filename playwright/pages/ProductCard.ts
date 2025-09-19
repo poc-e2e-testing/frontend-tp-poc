@@ -1,5 +1,9 @@
 import { Page, Locator, expect } from '@playwright/test';
 
+
+/**
+ * 
+ */
 export class ProductCard {
   readonly page: Page;
   readonly root: Locator;
